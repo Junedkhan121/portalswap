@@ -1,0 +1,8 @@
+node_modules/
+cache/
+artifacts/
+typechain-types/
+.env
+deployed-addresses.json
+frontend/node_modules/
+frontend/dist/

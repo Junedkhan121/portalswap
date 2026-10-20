@@ -1,0 +1,16 @@
+{
+  "name": "portalswap",
+  "version": "1.0.0",
+  "description": "PortalSwap - AMM DEX on Portaldot V3.0 Testnet",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.js --network portaldotTestnet",
+    "seed": "npx hardhat run scripts/seed.js --network portaldotTestnet",
+    "test": "npx hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
+  }
+}
