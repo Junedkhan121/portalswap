@@ -134,6 +134,7 @@ export default function FaucetCard({ wallet }) {
 
   const eligible = faucetDeployed && cooldownSecs === 0 && ethers.isAddress(recipient);
 
+
   // Relay claim — no wallet needed
   const handleRelayClaim = async () => {
     if (!faucetDeployed || !ethers.isAddress(recipient)) return;
@@ -300,6 +301,7 @@ export default function FaucetCard({ wallet }) {
                 </button>
               </details>
             )}
+
 
             {/* Donate back section */}
             <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(61,126,255,0.05)', border: '1px solid rgba(61,126,255,0.15)' }}>
