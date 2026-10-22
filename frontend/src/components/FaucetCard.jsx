@@ -33,44 +33,56 @@ export default function FaucetCard({ wallet }) {
 
   return (
     <div className="glass-card rounded-3xl p-5">
-      <div className="mb-5">
-        <h2 style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 20, color: '#e8f0ff', marginBottom: 4 }}>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 20, color: 'var(--text-primary)', marginBottom: 4 }}>
           Testnet Faucet
         </h2>
-        <p className="text-sm text-portal-muted">Mint free test tokens to try PortalSwap.</p>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Mint free test tokens to try PortalSwap.</p>
       </div>
 
       {!account ? (
         <button onClick={connect}
-          className="btn-primary w-full py-4 rounded-2xl font-semibold text-white"
-          style={{ fontFamily: 'Space Grotesk', fontSize: 15 }}>
+          style={{
+            width: '100%', padding: '16px 0', borderRadius: 20,
+            fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-primary)',
+            background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))',
+            color: '#fff', border: 'none', cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+        >
           Connect Wallet
         </button>
       ) : (
-        <div className="space-y-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {mintableTokens.map(token => (
-            <div key={token.symbol} className="flex items-center justify-between p-4 rounded-2xl transition"
-              style={{ background: 'rgba(7,9,15,0.5)', border: '1px solid rgba(30,46,74,0.6)' }}>
-              <div className="flex items-center gap-3">
+            <div key={token.symbol} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '16px', borderRadius: 20,
+              background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor='var(--border-accent)'; e.currentTarget.style.background='var(--bg-menu-item-hover)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor='var(--border-secondary)'; e.currentTarget.style.background='var(--bg-menu-item)'; }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <TokenAvatar token={token} size={40} />
                 <div>
-                  <p style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 15, color: '#e8f0ff' }}>
+                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 15, color: 'var(--text-primary)', marginBottom: 2 }}>
                     {token.symbol}
                   </p>
-                  <p className="text-xs text-portal-muted">{token.name}</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{token.name}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-portal-muted mb-1.5">
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
                   {token.decimals === 8 ? '1 token' : '10,000 tokens'}
                 </p>
                 <button onClick={() => handleMint(token)} disabled={loading[token.symbol]}
-                  className="px-4 py-1.5 rounded-xl text-sm font-semibold transition disabled:opacity-50"
                   style={{
-                    fontFamily: 'Space Grotesk',
-                    background: 'rgba(61,126,255,0.15)',
-                    color: '#3d7eff',
-                    border: '1px solid rgba(61,126,255,0.3)',
+                    padding: '8px 16px', borderRadius: 14, fontSize: 13, fontWeight: 600,
+                    fontFamily: 'var(--font-primary)', cursor: loading[token.symbol] ? 'not-allowed' : 'pointer',
+                    background: 'rgba(61,126,255,0.15)', color: 'var(--accent-blue)',
+                    border: '1px solid rgba(61,126,255,0.3)', transition: 'all 0.15s',
+                    opacity: loading[token.symbol] ? 0.6 : 1,
                   }}
                   onMouseEnter={e => { if (!loading[token.symbol]) e.currentTarget.style.background='rgba(61,126,255,0.25)'; }}
                   onMouseLeave={e => { if (!loading[token.symbol]) e.currentTarget.style.background='rgba(61,126,255,0.15)'; }}>
@@ -80,16 +92,18 @@ export default function FaucetCard({ wallet }) {
             </div>
           ))}
 
-          <div className="mt-4 p-4 rounded-2xl"
-            style={{ background: 'rgba(61,126,255,0.05)', border: '1px solid rgba(61,126,255,0.15)' }}>
-            <div className="flex items-start gap-3">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3d7eff" strokeWidth="2" className="mt-0.5 flex-shrink-0">
+          <div style={{ marginTop: 8, padding: 16, borderRadius: 20,
+            background: 'rgba(61,126,255,0.05)', border: '1px solid rgba(61,126,255,0.15)' }}>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--accent-blue)" strokeWidth="2" style={{ flexShrink: 0, marginTop: 2 }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-xs text-portal-muted">
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                 Need native tPOTv3 for gas? Visit the{' '}
                 <a href="https://discord.gg/portaldot" target="_blank" rel="noopener noreferrer"
-                  className="text-portal-primary hover:underline">Portaldot Discord</a>{' '}
+                  style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 500 }}>
+                  Portaldot Discord
+                </a>{' '}
                 and request tokens from the faucet channel.
               </p>
             </div>

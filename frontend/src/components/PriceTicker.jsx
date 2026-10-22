@@ -44,7 +44,7 @@ export default function PriceTicker() {
   const speed = Math.max(prices.length * 8, 20); // seconds for one full pass
 
   const Item = ({ item }) => {
-    const color = TOKEN_COLORS[item.symbol] || '#9ab0d4';
+    const color = TOKEN_COLORS[item.symbol] || 'var(--text-secondary)';
     const fmt = item.price < 0.0001
       ? item.price.toExponential(2)
       : item.price < 1
@@ -58,23 +58,23 @@ export default function PriceTicker() {
         {/* Color dot */}
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 5px ${color}99` }} />
         {/* Symbol */}
-        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: '#e8f0ff' }}>
+        <span style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 12, color: 'var(--text-primary)' }}>
           {item.symbol}
         </span>
         {/* Price */}
-        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 12, color }}>
+        <span style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 12, color: color }}>
           {fmt}
         </span>
-        <span style={{ fontSize: 11, color: '#4e6490', fontWeight: 500 }}>{NATIVE_SYMBOL}</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>{NATIVE_SYMBOL}</span>
         {/* Divider */}
-        <span style={{ width: 1, height: 12, background: 'rgba(30,46,74,0.8)', marginLeft: 4, flexShrink: 0 }} />
+        <span style={{ width: 1, height: 12, background: 'var(--border-primary)', marginLeft: 4, flexShrink: 0 }} />
       </span>
     );
   };
 
   return (
     <div style={{
-      borderBottom: '1px solid rgba(30,46,74,0.4)',
+      borderBottom: '1px solid var(--border-primary)',
       background: 'rgba(4,6,12,0.8)',
       height: 34,
       display: 'flex',
@@ -106,14 +106,14 @@ export default function PriceTicker() {
         pointerEvents: 'none',
       }}>
         <span style={{
-          fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 9,
-          color: '#10b981', letterSpacing: '0.12em',
+          fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 9,
+          color: 'var(--text-success)', letterSpacing: '0.12em',
           background: 'rgba(16,185,129,0.12)',
           border: '1px solid rgba(16,185,129,0.3)',
           borderRadius: 4, padding: '2px 6px',
           display: 'flex', alignItems: 'center', gap: 4,
         }}>
-          <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--accent-green)', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
           LIVE
         </span>
       </div>

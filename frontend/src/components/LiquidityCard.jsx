@@ -59,7 +59,6 @@ export default function LiquidityCard({ wallet }) {
       return;
     }
     if (pairAddress && pairAddress !== ethers.ZeroAddress && reserves.r0 !== '0' && reserves.r1 !== '0') {
-      // Reserves are ordered by token0/token1 (sorted addresses), so map decimals correctly
       const addrA = tokenA.isNative ? ADDRESSES.WPOT : tokenA.address;
       const addrB = tokenB.isNative ? ADDRESSES.WPOT : tokenB.address;
       const aIsToken0 = addrA.toLowerCase() < addrB.toLowerCase();
@@ -95,9 +94,6 @@ export default function LiquidityCard({ wallet }) {
       const addrB = tokenB.isNative ? ADDRESSES.WPOT : tokenB.address;
       const amtA = ethers.parseUnits(amountA, tokenA.decimals);
       const amtB = ethers.parseUnits(amountB, tokenB.decimals);
-      // 0.5% tolerance — the auto-filled B amount is ratio-based and the pool can
-      // drift between the quote and the signature. 5% was needlessly strict and
-      // caused swaps-just-happened reverts.
       const minA = amtA * 995n / 1000n;
       const minB = amtB * 995n / 1000n;
 
@@ -180,23 +176,29 @@ export default function LiquidityCard({ wallet }) {
   };
 
   return (
-    <div className="bg-portal-card border border-portal-border rounded-3xl p-5 glow-box">
+    <div className="glass-card rounded-3xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-white">Liquidity</h2>
-        <div className="flex gap-1 bg-portal-surface rounded-xl p-0.5">
+        <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)' }}>Liquidity</h2>
+        <div style={{ display: 'flex', gap: 4, background: 'var(--bg-menu-item)', borderRadius: 12, padding: 4 }}>
           <button
             onClick={() => setMode('add')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              mode === 'add' ? 'bg-portal-primary text-white' : 'text-portal-muted hover:text-white'
-            }`}
+            style={{
+              padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+              fontFamily: 'var(--font-primary)', transition: 'all 0.15s', border: 'none', cursor: 'pointer',
+              background: mode === 'add' ? 'var(--accent-blue)' : 'transparent',
+              color: mode === 'add' ? '#fff' : 'var(--text-muted)',
+            }}
           >
             Add
           </button>
           <button
             onClick={() => setMode('remove')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              mode === 'remove' ? 'bg-portal-primary text-white' : 'text-portal-muted hover:text-white'
-            }`}
+            style={{
+              padding: '8px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+              fontFamily: 'var(--font-primary)', transition: 'all 0.15s', border: 'none', cursor: 'pointer',
+              background: mode === 'remove' ? 'var(--accent-red)' : 'transparent',
+              color: mode === 'remove' ? '#fff' : 'var(--text-muted)',
+            }}
           >
             Remove
           </button>
@@ -205,50 +207,61 @@ export default function LiquidityCard({ wallet }) {
 
       {mode === 'add' ? (
         <>
-          <div className="bg-portal-surface rounded-2xl p-4 mb-2">
-            <p className="text-xs text-portal-muted mb-2">Token A</p>
-            <div className="flex items-center gap-3">
+          <div style={{ background: 'var(--bg-menu-item)', borderRadius: 20, padding: 16, marginBottom: 12, border: '1px solid var(--border-secondary)' }}>
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, fontFamily: 'var(--font-primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Token A</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <input
                 type="number"
                 value={amountA}
                 onChange={(e) => setAmountA(e.target.value)}
                 placeholder="0.0"
-                className="flex-1 bg-transparent text-xl font-semibold text-white placeholder-portal-muted/50 token-input"
+                style={{
+                  flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                  fontSize: 22, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-primary)',
+                  width: '100%',
+                }}
               />
               <TokenSelect selectedToken={tokenA} onSelect={setTokenA} otherToken={tokenB} />
             </div>
           </div>
 
-          <div className="flex justify-center my-1">
-            <div className="w-8 h-8 rounded-lg bg-portal-surface flex items-center justify-center">
-              <span className="text-portal-muted text-lg">+</span>
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 12, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: 18 }}>+</span>
             </div>
           </div>
 
-          <div className="bg-portal-surface rounded-2xl p-4">
-            <p className="text-xs text-portal-muted mb-2">Token B</p>
-            <div className="flex items-center gap-3">
+          <div style={{ background: 'var(--bg-menu-item)', borderRadius: 20, padding: 16, border: '1px solid var(--border-secondary)' }}>
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, fontFamily: 'var(--font-primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Token B</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <input
                 type="number"
                 value={amountB}
                 onChange={(e) => setAmountB(e.target.value)}
                 placeholder="0.0"
-                className="flex-1 bg-transparent text-xl font-semibold text-white placeholder-portal-muted/50 token-input"
+                style={{
+                  flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                  fontSize: 22, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-primary)',
+                  width: '100%',
+                }}
               />
               <TokenSelect selectedToken={tokenB} onSelect={setTokenB} otherToken={tokenA} />
             </div>
           </div>
 
           {pairAddress && pairAddress !== ethers.ZeroAddress && (
-            <div className="mt-3 p-3 bg-portal-surface/50 rounded-xl space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-portal-muted">Pool</span>
-                <span className="text-portal-text">
+            <div style={{ marginTop: 16, padding: 12, background: 'rgba(61,126,255,0.05)', borderRadius: 16, border: '1px solid rgba(61,126,255,0.15)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                <span style={{ color: 'var(--text-muted)' }}>Pool</span>
+                <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-primary)', fontWeight: 500 }}>
                   {tokenA.symbol} / {tokenB.symbol}
                 </span>
-              </div>              <div className="flex justify-between text-xs">
-                <span className="text-portal-muted">Your LP Tokens</span>
-                <span className="text-portal-text">{parseFloat(lpBalance).toFixed(6)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginTop: 6 }}>
+                <span style={{ color: 'var(--text-muted)' }}>Your LP Tokens</span>
+                <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-primary)', fontWeight: 500 }}>
+                  {parseFloat(lpBalance).toFixed(6)}
+                </span>
               </div>
             </div>
           )}
@@ -256,19 +269,26 @@ export default function LiquidityCard({ wallet }) {
           <button
             onClick={account ? handleAddLiquidity : connect}
             disabled={isLoading || (account && (!amountA || !amountB))}
-            className="w-full mt-4 py-4 rounded-2xl text-base font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-portal-primary to-portal-secondary text-white hover:shadow-lg hover:shadow-portal-primary/25"
+            style={{
+              width: '100%', marginTop: 16, padding: '16px 0', borderRadius: 20,
+              fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-primary)',
+              background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))',
+              color: '#fff', border: 'none', cursor: account && !isLoading && amountA && amountB ? 'pointer' : 'not-allowed',
+              opacity: isLoading || (account && (!amountA || !amountB)) ? 0.5 : 1,
+              transition: 'all 0.2s',
+            }}
           >
             {!account ? 'Connect Wallet' : isLoading ? 'Adding...' : 'Add Liquidity'}
           </button>
         </>
       ) : (
         <>
-          <div className="bg-portal-surface rounded-2xl p-4 mb-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-portal-muted">LP Tokens to Remove</p>
+          <div style={{ background: 'var(--bg-menu-item)', borderRadius: 20, padding: 16, marginBottom: 16, border: '1px solid var(--border-secondary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>LP Tokens to Remove</p>
               <button
                 onClick={() => setRemoveAmount(lpBalance)}
-                className="text-xs text-portal-primary hover:text-portal-accent"
+                style={{ fontSize: 11, color: 'var(--accent-blue)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-primary)', fontWeight: 600 }}
               >
                 Max: {parseFloat(lpBalance).toFixed(6)}
               </button>
@@ -278,34 +298,51 @@ export default function LiquidityCard({ wallet }) {
               value={removeAmount}
               onChange={(e) => setRemoveAmount(e.target.value)}
               placeholder="0.0"
-              className="w-full bg-transparent text-xl font-semibold text-white placeholder-portal-muted/50 token-input"
+              style={{
+                width: '100%', background: 'transparent', border: 'none', outline: 'none',
+                fontSize: 22, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-primary)',
+              }}
             />
           </div>
 
-          <div className="flex gap-2 mb-3">
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             {['25', '50', '75', '100'].map((pct) => (
               <button
                 key={pct}
                 onClick={() =>
                   setRemoveAmount(((parseFloat(lpBalance) * parseInt(pct)) / 100).toString())
                 }
-                className="flex-1 py-2 rounded-xl text-xs font-medium bg-portal-surface text-portal-muted hover:text-white hover:bg-portal-border transition"
+                style={{
+                  flex: 1, padding: '10px 0', borderRadius: 16, fontSize: 11, fontWeight: 600,
+                  fontFamily: 'var(--font-primary)', background: 'var(--bg-menu-item)',
+                  color: 'var(--text-muted)', border: '1px solid var(--border-secondary)', cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color='var(--text-primary)'; e.currentTarget.style.background='var(--bg-menu-item-hover)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color='var(--text-muted)'; e.currentTarget.style.background='var(--bg-menu-item)'; }}
               >
                 {pct}%
               </button>
             ))}
           </div>
 
-          <div className="flex gap-3 mb-3">
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
             <TokenSelect selectedToken={tokenA} onSelect={setTokenA} otherToken={tokenB} />
-            <span className="text-portal-muted self-center">/</span>
+            <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>/</span>
             <TokenSelect selectedToken={tokenB} onSelect={setTokenB} otherToken={tokenA} />
           </div>
 
           <button
             onClick={account ? handleRemoveLiquidity : connect}
             disabled={isLoading || (account && (!removeAmount || parseFloat(removeAmount) === 0))}
-            className="w-full mt-2 py-4 rounded-2xl text-base font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-red-500 to-red-600 text-white hover:shadow-lg hover:shadow-red-500/25"
+            style={{
+              width: '100%', padding: '16px 0', borderRadius: 20,
+              fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-primary)',
+              background: 'linear-gradient(135deg, var(--accent-red), #c92a2a)',
+              color: '#fff', border: 'none', cursor: account && !isLoading && removeAmount && parseFloat(removeAmount) > 0 ? 'pointer' : 'not-allowed',
+              opacity: isLoading || (account && (!removeAmount || parseFloat(removeAmount) === 0)) ? 0.5 : 1,
+              transition: 'all 0.2s',
+            }}
           >
             {!account ? 'Connect Wallet' : isLoading ? 'Removing...' : 'Remove Liquidity'}
           </button>

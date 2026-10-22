@@ -13,7 +13,7 @@ function Confetti({ active, onDone }) {
     const canvas = ref.current;
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const colors = ['#3d7eff','#a855f7','#10b981','#f5ac37','#f7931a','#00d4ff'];
+    const colors = ['var(--accent-blue)','var(--accent-purple)','var(--accent-green)','var(--accent-yellow)','var(--accent-orange)','#00d4ff'];
     const pieces = Array.from({ length: 120 }, () => ({
       x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
       r: Math.random() * 7 + 3, d: Math.random() * 120,
@@ -53,35 +53,35 @@ function shareSwapCard({ fromSymbol, toSymbol, amountIn, amountOut }) {
   const ctx = canvas.getContext('2d');
   // Background
   const grad = ctx.createLinearGradient(0,0,600,320);
-  grad.addColorStop(0,'#07090f'); grad.addColorStop(1,'#0d1424');
+  grad.addColorStop(0,'var(--bg-primary)'); grad.addColorStop(1,'var(--bg-secondary)');
   ctx.fillStyle = grad; ctx.fillRect(0,0,600,320);
   // Border glow
   ctx.strokeStyle = 'rgba(61,126,255,0.4)'; ctx.lineWidth = 1.5;
   ctx.strokeRect(1,1,598,318);
   // Header
-  ctx.fillStyle = '#3d7eff'; ctx.font = 'bold 14px Space Grotesk, sans-serif';
+  ctx.fillStyle = 'var(--accent-blue)'; ctx.font = 'bold 14px Space Grotesk, sans-serif';
   ctx.fillText('PortalSwap', 32, 44);
-  ctx.fillStyle = '#4e6490'; ctx.font = '11px Inter, sans-serif';
+  ctx.fillStyle = 'var(--text-muted)'; ctx.font = '11px Inter, sans-serif';
   ctx.fillText('AMM DEX · Portaldot V3 Testnet', 32, 62);
   // Swap label
-  ctx.fillStyle = '#e8f0ff'; ctx.font = 'bold 13px Space Grotesk, sans-serif';
+  ctx.fillStyle = 'var(--text-primary)'; ctx.font = 'bold 13px Space Grotesk, sans-serif';
   ctx.fillText('SWAPPED', 32, 110);
   // From amount
-  ctx.fillStyle = '#e8f0ff'; ctx.font = 'bold 52px Space Grotesk, sans-serif';
+  ctx.fillStyle = 'var(--text-primary)'; ctx.font = 'bold 52px Space Grotesk, sans-serif';
   ctx.fillText(parseFloat(amountIn).toFixed(4), 32, 175);
-  ctx.fillStyle = '#9ab0d4'; ctx.font = 'bold 22px Space Grotesk, sans-serif';
+  ctx.fillStyle = 'var(--text-secondary)'; ctx.font = 'bold 22px Space Grotesk, sans-serif';
   ctx.fillText(fromSymbol, 32, 210);
   // Arrow
-  ctx.fillStyle = '#3d7eff'; ctx.font = 'bold 36px sans-serif';
+  ctx.fillStyle = 'var(--accent-blue)'; ctx.font = 'bold 36px sans-serif';
   ctx.fillText('→', 290, 185);
   // To amount
-  ctx.fillStyle = '#10b981'; ctx.font = 'bold 52px Space Grotesk, sans-serif';
+  ctx.fillStyle = 'var(--accent-green)'; ctx.font = 'bold 52px Space Grotesk, sans-serif';
   ctx.fillText(parseFloat(amountOut).toFixed(4), 350, 175);
-  ctx.fillStyle = '#9ab0d4'; ctx.font = 'bold 22px Space Grotesk, sans-serif';
+  ctx.fillStyle = 'var(--text-secondary)'; ctx.font = 'bold 22px Space Grotesk, sans-serif';
   ctx.fillText(toSymbol, 350, 210);
   // Footer
   ctx.fillStyle = 'rgba(78,100,144,0.6)'; ctx.fillRect(0,270,600,50);
-  ctx.fillStyle = '#4e6490'; ctx.font = '11px Inter, sans-serif';
+  ctx.fillStyle = 'var(--text-muted)'; ctx.font = '11px Inter, sans-serif';
   ctx.fillText('portalswap.dev · Built for Portaldot Hacker House 2026', 32, 300);
   // Download
   const link = document.createElement('a');
@@ -94,62 +94,62 @@ function SwapSuccessCard({ result, onClose }) {
   const { fromSymbol, toSymbol, amountIn, amountOut, hash } = result;
   return (
     <div style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.7)', backdropFilter:'blur(8px)' }}>
-      <div style={{ width:360, borderRadius:28, background:'linear-gradient(160deg,#0d1424 0%,#0a1020 100%)', border:'1px solid rgba(16,185,129,0.35)', padding:'36px 28px 28px', boxShadow:'0 0 60px rgba(16,185,129,0.15), 0 24px 64px rgba(0,0,0,0.8)', textAlign:'center' }}>
+      <div style={{ width:360, borderRadius:28, background:'linear-gradient(160deg,var(--bg-secondary) 0%,var(--bg-card-hover) 100%)', border:'1px solid rgba(16,185,129,0.35)', padding:'36px 28px 28px', boxShadow:'0 0 60px rgba(16,185,129,0.15), 0 24px 64px rgba(0,0,0,0.8)', textAlign:'center' }>
 
         {/* Check icon */}
-        <div style={{ width:72, height:72, borderRadius:'50%', margin:'0 auto 20px', background:'linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05))', border:'2px solid rgba(16,185,129,0.5)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 28px rgba(16,185,129,0.35)' }}>
-          <svg width="34" height="34" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth="2.5">
+        <div style={{ width:72, height:72, borderRadius:'50%', margin:'0 auto 20px', background:'linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05))', border:'2px solid rgba(16,185,129,0.5)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'var(--shadow-glow-green)' }}>
+          <svg width="34" height="34" fill="none" viewBox="0 0 24 24" stroke="var(--accent-green)" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
 
-        <p style={{ fontFamily:'Space Grotesk', fontWeight:700, fontSize:22, color:'#e8f0ff', marginBottom:4 }}>Swap Successful</p>
-        <p style={{ fontSize:13, color:'#4e6490', marginBottom:28 }}>Your transaction has been confirmed on-chain</p>
+        <p style={{ fontFamily:'var(--font-primary)', fontWeight:700, fontSize:22, color:'var(--text-primary)', marginBottom:4 }}>Swap Successful</p>
+        <p style={{ fontSize:13, color:'var(--text-muted)', marginBottom:28 }}>Your transaction has been confirmed on-chain</p>
 
         {/* Amount display */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:16, background:'rgba(7,9,15,0.7)', border:'1px solid rgba(30,46,74,0.7)', borderRadius:22, padding:'20px', marginBottom:20 }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:16, background:'var(--bg-input)', border:'1px solid var(--border-secondary)', borderRadius:22, padding:'20px', marginBottom:20 }}>
           {/* From */}
           <div style={{ textAlign:'center' }}>
-            <div style={{ width:52, height:52, borderRadius:'50%', margin:'0 auto 10px', background:'linear-gradient(135deg,#6a4aff,#3d7eff)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Space Grotesk', fontWeight:700, fontSize:20, color:'#fff', boxShadow:'0 0 16px rgba(61,126,255,0.4)' }}>
+            <div style={{ width:52, height:52, borderRadius:'50%', margin:'0 auto 10px', background:'linear-gradient(135deg,var(--accent-purple),var(--accent-blue))', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-primary)', fontWeight:700, fontSize:20, color:'#fff', boxShadow:'0 0 16px rgba(61,126,255,0.4)' }}>
               {fromSymbol[0]}
             </div>
-            <p style={{ fontFamily:'Space Grotesk', fontWeight:700, fontSize:20, color:'#e8f0ff', lineHeight:1.1 }}>{parseFloat(amountIn).toFixed(4)}</p>
-            <p style={{ fontSize:12, color:'#4e6490', marginTop:3 }}>{fromSymbol}</p>
+            <p style={{ fontFamily:'var(--font-primary)', fontWeight:700, fontSize:20, color:'var(--text-primary)', lineHeight:1.1 }}>{parseFloat(amountIn).toFixed(4)}</p>
+            <p style={{ fontSize:12, color:'var(--text-muted)', marginTop:3 }}>{fromSymbol}</p>
           </div>
 
           {/* Arrow */}
           <div style={{ width:38, height:38, borderRadius:'50%', background:'rgba(61,126,255,0.1)', border:'1px solid rgba(61,126,255,0.25)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3d7eff" strokeWidth="2.5">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--accent-blue)" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
             </svg>
           </div>
 
           {/* To */}
           <div style={{ textAlign:'center' }}>
-            <div style={{ width:52, height:52, borderRadius:'50%', margin:'0 auto 10px', background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Space Grotesk', fontWeight:700, fontSize:20, color:'#fff', boxShadow:'0 0 16px rgba(16,185,129,0.4)' }}>
+            <div style={{ width:52, height:52, borderRadius:'50%', margin:'0 auto 10px', background:'linear-gradient(135deg,var(--accent-green),#059669)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-primary)', fontWeight:700, fontSize:20, color:'#fff', boxShadow:'0 0 16px rgba(16,185,129,0.4)' }}>
               {toSymbol[0]}
             </div>
-            <p style={{ fontFamily:'Space Grotesk', fontWeight:700, fontSize:20, color:'#10b981', lineHeight:1.1 }}>+{parseFloat(amountOut).toFixed(4)}</p>
-            <p style={{ fontSize:12, color:'#4e6490', marginTop:3 }}>{toSymbol}</p>
+            <p style={{ fontFamily:'var(--font-primary)', fontWeight:700, fontSize:20, color:'var(--accent-green)', lineHeight:1.1 }}>+{parseFloat(amountOut).toFixed(4)}</p>
+            <p style={{ fontSize:12, color:'var(--text-muted)', marginTop:3 }}>{toSymbol}</p>
           </div>
         </div>
 
         {/* Tx hash */}
         {hash && (
           <div style={{ padding:'10px 14px', borderRadius:12, background:'rgba(61,126,255,0.06)', border:'1px solid rgba(61,126,255,0.15)', marginBottom:22, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <span style={{ fontSize:11, color:'#4e6490' }}>Tx hash</span>
-            <span style={{ fontFamily:'monospace', fontSize:12, color:'#3d7eff' }}>{hash.slice(0,12)}…{hash.slice(-8)}</span>
+            <span style={{ fontSize:11, color:'var(--text-muted)' }}>Tx hash</span>
+            <span style={{ fontFamily:'monospace', fontSize:12, color:'var(--accent-blue)' }}>{hash.slice(0,12)}…{hash.slice(-8)}</span>
           </div>
         )}
 
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={() => shareSwapCard(result)}
-            style={{ flex:1, padding:'13px', borderRadius:16, fontFamily:'Space Grotesk', fontWeight:700, fontSize:14, color:'#3d7eff', cursor:'pointer', background:'rgba(61,126,255,0.1)', border:'1px solid rgba(61,126,255,0.3)' }}>
+            style={{ flex:1, padding:'13px', borderRadius:16, fontFamily:'var(--font-primary)', fontWeight:700, fontSize:14, color:'var(--accent-blue)', cursor:'pointer', background:'rgba(61,126,255,0.1)', border:'1px solid rgba(61,126,255,0.3)' }}>
             Share 📸
           </button>
           <button onClick={onClose}
             className="btn-primary"
-            style={{ flex:2, padding:'13px', borderRadius:16, fontFamily:'Space Grotesk', fontWeight:700, fontSize:15, color:'#fff', cursor:'pointer', border:'none' }}>
+            style={{ flex:2, padding:'13px', borderRadius:16, fontFamily:'var(--font-primary)', fontWeight:700, fontSize:15, color:'#fff', cursor:'pointer', border:'none' }}>
             Close
           </button>
         </div>
@@ -162,21 +162,21 @@ function SwapSuccessCard({ result, onClose }) {
 function ImpactModal({ impact, onConfirm, onCancel }) {
   return (
     <div style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.7)', backdropFilter:'blur(4px)' }}>
-      <div style={{ width:360, borderRadius:24, background:'#0d1424', border:'1px solid rgba(239,68,68,0.4)', padding:28, boxShadow:'0 24px 64px rgba(0,0,0,0.8)' }}>
+      <div style={{ width:360, borderRadius:24, background:'var(--bg-modal)', border:'1px solid rgba(239,68,68,0.4)', padding:28, boxShadow:'0 24px 64px rgba(0,0,0,0.8)' }}>
         <div style={{ width:48, height:48, borderRadius:'50%', background:'rgba(239,68,68,0.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
-          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth="2">
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="var(--accent-red)" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
           </svg>
         </div>
-        <p style={{ fontFamily:'Space Grotesk', fontWeight:700, fontSize:18, color:'#fff', textAlign:'center', marginBottom:10 }}>High Price Impact</p>
-        <p style={{ fontSize:14, color:'#9ab0d4', textAlign:'center', lineHeight:1.6, marginBottom:6 }}>This swap has a price impact of</p>
-        <p style={{ fontFamily:'Space Grotesk', fontWeight:800, fontSize:32, color:'#ef4444', textAlign:'center', marginBottom:12 }}>{impact}%</p>
-        <p style={{ fontSize:13, color:'#9ab0d4', textAlign:'center', lineHeight:1.6, marginBottom:24 }}>
+        <p style={{ fontFamily:'var(--font-primary)', fontWeight:700, fontSize:18, color:'var(--text-primary)', textAlign:'center', marginBottom:10 }}>High Price Impact</p>
+        <p style={{ fontSize:14, color:'var(--text-secondary)', textAlign:'center', lineHeight:1.6, marginBottom:6 }}>This swap has a price impact of</p>
+        <p style={{ fontFamily:'var(--font-primary)', fontWeight:800, fontSize:32, color:'var(--accent-red)', textAlign:'center', marginBottom:12 }}>{impact}%</p>
+        <p style={{ fontSize:13, color:'var(--text-secondary)', textAlign:'center', lineHeight:1.6, marginBottom:24 }}>
           You may receive significantly less than expected. This usually means the pool is shallow for this trade size.
         </p>
         <div style={{ display:'flex', gap:10 }}>
-          <button onClick={onCancel} style={{ flex:1, padding:'12px', borderRadius:14, fontFamily:'Space Grotesk', fontWeight:600, fontSize:14, color:'#9ab0d4', background:'rgba(22,32,64,0.6)', border:'1px solid rgba(30,46,74,0.8)', cursor:'pointer' }}>Cancel</button>
-          <button onClick={onConfirm} style={{ flex:1, padding:'12px', borderRadius:14, fontFamily:'Space Grotesk', fontWeight:600, fontSize:14, color:'#fff', background:'linear-gradient(135deg,#ef4444,#dc2626)', cursor:'pointer', border:'none' }}>Swap Anyway</button>
+          <button onClick={onCancel} style={{ flex:1, padding:'12px', borderRadius:14, fontFamily:'var(--font-primary)', fontWeight:600, fontSize:14, color:'var(--text-secondary)', background:'var(--bg-pill)', border:'1px solid var(--border-primary)', cursor:'pointer' }}>Cancel</button>
+          <button onClick={onConfirm} style={{ flex:1, padding:'12px', borderRadius:14, fontFamily:'var(--font-primary)', fontWeight:600, fontSize:14, color:'#fff', background:'linear-gradient(135deg,var(--accent-red),#dc2626)', cursor:'pointer', border:'none' }}>Swap Anyway</button>
         </div>
       </div>
     </div>
@@ -345,10 +345,10 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
 
       <div className="glass-card rounded-3xl p-5">
         <div className="flex items-center justify-between mb-5">
-          <h2 style={{ fontFamily:'Space Grotesk', fontWeight:700, fontSize:20, color:'#e8f0ff' }}>Swap</h2>
+          <h2 style={{ fontFamily:'var(--font-primary)', fontWeight:700, fontSize:20, color:'var(--text-primary)' }}>Swap</h2>
           <button onClick={() => setShowSettings(!showSettings)}
-            style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:showSettings?'rgba(61,126,255,0.15)':'rgba(22,32,64,0.6)', border:`1px solid ${showSettings?'rgba(61,126,255,0.3)':'rgba(30,46,74,0.8)'}`, cursor:'pointer' }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={showSettings?'#3d7eff':'#4e6490'} strokeWidth="1.8">
+            style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:showSettings?'rgba(61,126,255,0.15)':'var(--bg-pill)', border:`1px solid ${showSettings?'rgba(61,126,255,0.3)':'var(--border-primary)'}`, cursor:'pointer' }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={showSettings?'var(--accent-blue)':'var(--text-muted)'} strokeWidth="1.8">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -356,11 +356,11 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
         </div>
 
         {showSettings && (
-          <div className="mb-4 p-3 rounded-2xl" style={{ background:'rgba(7,9,15,0.6)', border:'1px solid rgba(30,46,74,0.6)' }}>
+          <div className="mb-4 p-3 rounded-2xl" style={{ background:'var(--bg-input)', border:'1px solid var(--border-secondary)' }}>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-portal-muted font-medium">Slippage Tolerance</p>
+              <p style={{ fontSize:11, color:'var(--text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Slippage Tolerance</p>
               {autoSlip && slippage === '0.5' && (
-                <span style={{ fontSize:11, color:'#10b981', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:6, padding:'2px 8px' }}>
+                <span style={{ fontSize:11, color:'var(--accent-green)', background:'rgba(16,185,129,0.1)', border:'1px solid rgba(16,185,129,0.2)', borderRadius:6, padding:'2px 8px' }}>
                   Auto: {autoSlip}%
                 </span>
               )}
@@ -368,12 +368,12 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
             <div className="flex gap-2">
               {['0.1','0.5','1.0'].map(v => (
                 <button key={v} onClick={() => setSlippage(v)}
-                  style={{ padding:'6px 12px', borderRadius:8, fontSize:12, fontWeight:600, fontFamily:'Space Grotesk', background:slippage===v?'#3d7eff':'rgba(22,32,64,0.8)', color:slippage===v?'#fff':'#9ab0d4', border:'none', cursor:'pointer' }}>
+                  style={{ padding:'6px 12px', borderRadius:8, fontSize:12, fontWeight:600, fontFamily:'var(--font-primary)', background:slippage===v?'var(--accent-blue)':'var(--bg-pill)', color:slippage===v?'#fff':'var(--text-secondary)', border:'none', cursor:'pointer' }}>
                   {v}%
                 </button>
               ))}
               <input type="number" value={slippage} onChange={e => setSlippage(e.target.value)}
-                style={{ width:64, padding:'6px 8px', borderRadius:8, fontSize:12, color:'#fff', textAlign:'center', background:'rgba(22,32,64,0.8)', border:'1px solid rgba(30,46,74,0.8)', outline:'none' }}
+                style={{ width:64, padding:'6px 8px', borderRadius:8, fontSize:12, color:'var(--text-primary)', textAlign:'center', background:'var(--bg-pill)', border:'1px solid var(--border-primary)', outline:'none' }}
                 placeholder="Custom" />
             </div>
           </div>
@@ -381,12 +381,12 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
 
         <div className="swap-input rounded-2xl p-4 mb-1">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-portal-muted">You pay</span>
-            {account && <button onClick={() => setAmountIn(balanceIn)} style={{ fontSize:12, color:'#9ab0d4', background:'none', border:'none', cursor:'pointer' }}>Balance: {parseFloat(balanceIn).toFixed(4)}</button>}
+            <span style={{ fontSize:11, fontWeight:600, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.05em' }}>You pay</span>
+            {account && <button onClick={() => setAmountIn(balanceIn)} style={{ fontSize:12, color:'var(--text-secondary)', background:'none', border:'none', cursor:'pointer' }}>Balance: {parseFloat(balanceIn).toFixed(4)}</button>}
           </div>
           <div className="flex items-center gap-3">
             <input type="number" value={amountIn} onChange={e => setAmountIn(e.target.value)} placeholder="0"
-              style={{ flex:1, background:'transparent', fontSize:28, fontWeight:600, color:'#e8f0ff', fontFamily:'Space Grotesk', outline:'none', border:'none', minWidth:0 }} />
+              style={{ flex:1, background:'transparent', fontSize:28, fontWeight:600, color:'var(--text-primary)', fontFamily:'var(--font-primary)', outline:'none', border:'none', minWidth:0 }} />
             <TokenSelect selectedToken={tokenIn} onSelect={setTokenIn} otherToken={tokenOut} />
           </div>
         </div>
@@ -394,7 +394,7 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
         <div className="flex justify-center -my-3 relative z-10">
           <button onClick={() => { setTokenIn(tokenOut); setTokenOut(tokenIn); setAmountIn(amountOut); setAmountOut(amountIn); }}
             className="swap-arrow w-10 h-10 rounded-xl flex items-center justify-center">
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ab0d4" strokeWidth="2">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
             </svg>
           </button>
@@ -402,31 +402,31 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
 
         <div className="swap-input rounded-2xl p-4 mt-1">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-portal-muted">You receive</span>
-            {account && <span style={{ fontSize:12, color:'#4e6490' }}>Balance: {parseFloat(balanceOut).toFixed(4)}</span>}
+            <span style={{ fontSize:11, fontWeight:600, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.05em' }}>You receive</span>
+            {account && <span style={{ fontSize:12, color:'var(--text-muted)' }}>Balance: {parseFloat(balanceOut).toFixed(4)}</span>}
           </div>
           <div className="flex items-center gap-3">
             <input type="number" value={amountOut} readOnly placeholder="0"
-              style={{ flex:1, background:'transparent', fontSize:28, fontWeight:600, color:'#e8f0ff', fontFamily:'Space Grotesk', outline:'none', border:'none', minWidth:0 }} />
+              style={{ flex:1, background:'transparent', fontSize:28, fontWeight:600, color:'var(--text-primary)', fontFamily:'var(--font-primary)', outline:'none', border:'none', minWidth:0 }} />
             <TokenSelect selectedToken={tokenOut} onSelect={setTokenOut} otherToken={tokenIn} />
           </div>
         </div>
 
         {amountIn && amountOut && parseFloat(amountOut) > 0 && (
-          <div className="mt-3 px-4 py-3 rounded-2xl space-y-1.5" style={{ background:'rgba(7,9,15,0.5)', border:'1px solid rgba(30,46,74,0.4)' }}>
-            {route && <div className="flex justify-between text-xs"><span className="text-portal-muted">Route</span><span style={{ fontSize:11, color:'#3d7eff', fontFamily:'Space Grotesk', fontWeight:600 }}>{route}</span></div>}
-            <div className="flex justify-between text-xs"><span className="text-portal-muted">Rate</span><span className="text-portal-sub">1 {tokenIn?.symbol} = {(parseFloat(amountOut)/parseFloat(amountIn)).toFixed(6)} {tokenOut?.symbol}</span></div>
+          <div className="mt-3 px-4 py-3 rounded-2xl space-y-1.5" style={{ background:'rgba(7,9,15,0.5)', border:'1px solid var(--border-secondary)' }}>
+            {route && <div className="flex justify-between text-xs"><span style={{ color:'var(--text-muted)', fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Route</span><span style={{ fontSize:11, color:'var(--accent-blue)', fontFamily:'var(--font-primary)', fontWeight:600 }}>{route}</span></div>}
+            <div className="flex justify-between text-xs"><span style={{ color:'var(--text-muted)', fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Rate</span><span style={{ color:'var(--text-secondary)', fontSize:11 }}>1 {tokenIn?.symbol} = {(parseFloat(amountOut)/parseFloat(amountIn)).toFixed(6)} {tokenOut?.symbol}</span></div>
             {priceImpact && (
               <div className="flex justify-between text-xs">
-                <span className="text-portal-muted">Price impact</span>
-                <span style={{ color:parseFloat(priceImpact)>5?'#ef4444':parseFloat(priceImpact)>2?'#f5ac37':'#10b981', fontWeight:600 }}>{priceImpact}% {parseFloat(priceImpact)>3?'⚠':''}</span>
+                <span style={{ color:'var(--text-muted)', fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Price impact</span>
+                <span style={{ color:parseFloat(priceImpact)>5?'var(--accent-red)':parseFloat(priceImpact)>2?'var(--accent-yellow)':'var(--accent-green)', fontWeight:600 }}>{priceImpact}% {parseFloat(priceImpact)>3?'⚠':''}</span>
               </div>
             )}
-            <div className="flex justify-between text-xs"><span className="text-portal-muted">Fee</span><span className="text-portal-sub">0.3%</span></div>
+            <div className="flex justify-between text-xs"><span style={{ color:'var(--text-muted)', fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Fee</span><span style={{ color:'var(--text-secondary)', fontSize:11 }}>0.3%</span></div>
             {gasEstimate && (
               <div className="flex justify-between text-xs">
-                <span className="text-portal-muted">Est. gas cost</span>
-                <span style={{ color: '#9ab0d4' }}>~{gasEstimate} tPOTv3</span>
+                <span style={{ color:'var(--text-muted)', fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Est. gas cost</span>
+                <span style={{ color: 'var(--text-secondary)' }}>~{gasEstimate} tPOTv3</span>
               </div>
             )}
           </div>
@@ -435,7 +435,7 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
         <button onClick={account?(isCorrectChain?handleSwap:wallet.switchNetwork):connect}
           disabled={btnDisabled()}
           className="btn-primary w-full mt-4 py-4 rounded-2xl font-semibold text-white disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ fontFamily:'Space Grotesk', fontSize:16 }}>
+          style={{ fontFamily:'var(--font-primary)', fontSize:16 }}>
           {isLoading ? (
             <span className="flex items-center justify-center gap-2">
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/><path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>

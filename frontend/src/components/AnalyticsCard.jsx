@@ -7,18 +7,18 @@ import { TokenAvatar } from './TokenSelect';
 // Compute pool health from reserves
 function getPoolHealth(r0, r1) {
   const a = parseFloat(r0), b = parseFloat(r1);
-  if (a === 0 || b === 0) return { label: 'Empty', color: '#4e6490', bg: 'rgba(78,100,144,0.12)', border: 'rgba(78,100,144,0.3)' };
+  if (a === 0 || b === 0) return { label: 'Empty', color: 'var(--text-muted)', bg: 'rgba(78,100,144,0.12)', border: 'rgba(78,100,144,0.3)' };
   const ratio = a / b;
   const tvl = a + b; // rough proxy (same-unit comparison)
-  if (tvl < 10) return { label: 'Low Liquidity', color: '#f5ac37', bg: 'rgba(245,172,55,0.1)', border: 'rgba(245,172,55,0.3)' };
-  if (ratio < 0.1 || ratio > 10) return { label: 'Imbalanced', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)' };
-  return { label: 'Healthy', color: '#10b981', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)' };
+  if (tvl < 10) return { label: 'Low Liquidity', color: 'var(--accent-yellow)', bg: 'rgba(245,172,55,0.1)', border: 'rgba(245,172,55,0.3)' };
+  if (ratio < 0.1 || ratio > 10) return { label: 'Imbalanced', color: 'var(--text-error)', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)' };
+  return { label: 'Healthy', color: 'var(--text-success)', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)' };
 }
 
 function HealthBadge({ r0, r1 }) {
   const h = getPoolHealth(r0, r1);
   return (
-    <span style={{ fontSize: 11, fontFamily: 'Space Grotesk', fontWeight: 600, color: h.color, background: h.bg, border: `1px solid ${h.border}`, borderRadius: 8, padding: '2px 8px', flexShrink: 0 }}>
+    <span style={{ fontSize: 11, fontFamily: 'var(--font-primary)', fontWeight: 600, color: h.color, background: h.bg, border: `1px solid ${h.border}`, borderRadius: 8, padding: '2px 8px', flexShrink: 0 }}>
       {h.label}
     </span>
   );
@@ -76,10 +76,10 @@ export default function AnalyticsCard({ wallet }) {
       localChart = createChart(chartRef.current, {
         width: chartRef.current.clientWidth, height: 240,
         watermark: { visible: false }, attributionLogo: false,
-        layout: { background: { color: 'transparent' }, textColor: '#9ab0d4', fontSize: 11 },
-        grid: { vertLines: { color: 'rgba(30,46,74,0.3)' }, horzLines: { color: 'rgba(30,46,74,0.3)' } },
-        timeScale: { borderColor: 'rgba(30,46,74,0.5)', timeVisible: true },
-        rightPriceScale: { borderColor: 'rgba(30,46,74,0.5)' },
+        layout: { background: { color: 'transparent' }, textColor: 'var(--text-secondary)', fontSize: 11 },
+        grid: { vertLines: { color: 'var(--border-secondary)' }, horzLines: { color: 'var(--border-secondary)' } },
+        timeScale: { borderColor: 'var(--border-primary)', timeVisible: true },
+        rightPriceScale: { borderColor: 'var(--border-primary)' },
         crosshair: { vertLine: { color: 'rgba(61,126,255,0.5)' }, horzLine: { color: 'rgba(61,126,255,0.5)' } },
       });
       const r0 = parseFloat(selectedPool.reserve0), r1 = parseFloat(selectedPool.reserve1);
@@ -93,7 +93,7 @@ export default function AnalyticsCard({ wallet }) {
       }
       data[data.length - 1].value = price;
       const series = localChart.addAreaSeries({
-        lineColor: '#3d7eff', topColor: 'rgba(61,126,255,0.25)',
+        lineColor: 'var(--accent-blue)', topColor: 'rgba(61,126,255,0.25)',
         bottomColor: 'rgba(61,126,255,0.0)', lineWidth: 2,
       });
       series.setData(data);
@@ -113,11 +113,11 @@ export default function AnalyticsCard({ wallet }) {
     return (
       <div className="glass-card rounded-3xl p-8">
         <div className="flex items-center justify-center gap-3">
-          <svg className="animate-spin h-5 w-5" style={{ color: '#3d7eff' }} viewBox="0 0 24 24" fill="none">
+          <svg className="animate-spin h-5 w-5" style={{ color: 'var(--accent-blue)' }} viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/>
             <path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
-          <span style={{ color: '#4e6490', fontSize: 14 }}>Loading analytics…</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Loading analytics…</span>
         </div>
       </div>
     );
@@ -128,13 +128,13 @@ export default function AnalyticsCard({ wallet }) {
       {/* Chart */}
       <div className="glass-card rounded-3xl p-5">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <h2 style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 18, color: '#e8f0ff' }}>Price Chart</h2>
+          <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)' }}>Price Chart</h2>
           {selectedPool && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 13, color: '#9ab0d4' }}>
+              <span style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--text-secondary)' }}>
                 {selectedPool.token0.symbol} / {selectedPool.token1.symbol}
               </span>
-              <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 16, color: '#e8f0ff' }}>
+              <span style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
                 {(parseFloat(selectedPool.reserve1) / parseFloat(selectedPool.reserve0) || 0).toFixed(4)}
               </span>
             </div>
@@ -143,7 +143,7 @@ export default function AnalyticsCard({ wallet }) {
         {selectedPool ? (
           <div ref={chartRef} style={{ borderRadius: 12, overflow: 'hidden' }} />
         ) : (
-          <p style={{ color: '#4e6490', textAlign: 'center', padding: '48px 0', fontSize: 14 }}>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '48px 0', fontSize: 14 }}>
             No pools found. Add liquidity to see charts.
           </p>
         )}
@@ -152,14 +152,14 @@ export default function AnalyticsCard({ wallet }) {
       {/* Pool list */}
       <div className="glass-card rounded-3xl p-5">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <h2 style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 18, color: '#e8f0ff' }}>All Pools</h2>
-          <span style={{ fontSize: 12, color: '#4e6490', fontFamily: 'Space Grotesk', fontWeight: 600,
-            background: 'rgba(61,126,255,0.1)', border: '1px solid rgba(61,126,255,0.2)', borderRadius: 8, padding: '3px 10px' }}>
+          <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 18, color: 'var(--text-primary)' }}>All Pools</h2>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-primary)', fontWeight: 600,
+            background: 'var(--bg-badge)', border: '1px solid var(--border-accent)', borderRadius: 8, padding: '3px 10px' }}>
             {pools.length} pools
           </span>
         </div>
         {pools.length === 0 ? (
-          <p style={{ color: '#4e6490', textAlign: 'center', padding: '32px 0', fontSize: 14 }}>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '32px 0', fontSize: 14 }}>
             No pools yet. Add liquidity to create the first pool!
           </p>
         ) : (
@@ -171,12 +171,12 @@ export default function AnalyticsCard({ wallet }) {
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: 12,
                     padding: '14px 16px', borderRadius: 18, cursor: 'pointer', border: 'none',
-                    background: isActive ? 'rgba(61,126,255,0.1)' : 'rgba(7,9,15,0.5)',
-                    outline: isActive ? '1px solid rgba(61,126,255,0.3)' : '1px solid rgba(30,46,74,0.5)',
+                    background: isActive ? 'rgba(61,126,255,0.1)' : 'var(--bg-menu-item)',
+                    outline: isActive ? '1px solid var(--border-accent)' : '1px solid var(--border-secondary)',
                     transition: 'all 0.15s',
                   }}
-                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background='rgba(22,32,64,0.6)'; }}
-                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background='rgba(7,9,15,0.5)'; }}>
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background='var(--bg-menu-item-hover)'; }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background='var(--bg-menu-item)'; }}>
                   {/* Token pair avatars */}
                   <div style={{ display: 'flex', position: 'relative', width: 52, height: 32, flexShrink: 0 }}>
                     <TokenAvatar token={pool.token0} size={32} />
@@ -186,17 +186,17 @@ export default function AnalyticsCard({ wallet }) {
                   </div>
                   {/* Info */}
                   <div style={{ flex: 1, textAlign: 'left' }}>
-                    <p style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 14, color: '#e8f0ff', marginBottom: 2 }}>
+                    <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', marginBottom: 2 }}>
                       {pool.token0.symbol} / {pool.token1.symbol}
                     </p>
-                    <p style={{ fontSize: 11, color: '#4e6490' }}>Pool #{idx + 1}</p>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Pool #{idx + 1}</p>
                   </div>
                   {/* Reserves */}
                   <div style={{ textAlign: 'right', marginRight: 10 }}>
-                    <p style={{ fontSize: 12, color: '#9ab0d4', fontFamily: 'Space Grotesk', fontWeight: 500 }}>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'var(--font-primary)', fontWeight: 500 }}>
                       {parseFloat(pool.reserve0).toFixed(2)}
                     </p>
-                    <p style={{ fontSize: 12, color: '#9ab0d4', fontFamily: 'Space Grotesk', fontWeight: 500 }}>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'var(--font-primary)', fontWeight: 500 }}>
                       {parseFloat(pool.reserve1).toFixed(2)}
                     </p>
                   </div>

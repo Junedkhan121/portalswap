@@ -21,7 +21,6 @@ export function useWallet() {
         params: [{ chainId: NETWORK_CONFIG.chainId }],
       });
     } catch (switchError) {
-      // Chain not added — add it
       if (switchError.code === 4902) {
         try {
           await window.ethereum.request({
@@ -38,8 +37,9 @@ export function useWallet() {
   const connect = useCallback(async (injectedProvider) => {
     const providerToUse = injectedProvider || window.ethereum;
     if (!providerToUse) {
-      setError('Please install MetaMask or OKX Wallet');
-      return;
+      const err = new Error('Please install MetaMask or OKX Wallet');
+      setError(err.message);
+      throw err;
     }
     setIsConnecting(true);
     setError(null);
@@ -62,8 +62,17 @@ export function useWallet() {
         await switchNetwork();
       }
     } catch (err) {
-      setError(err.message);
+      // User rejected / closed the wallet popup (code 4001) — re-throw so caller can keep modal open
+      if (err.code === 4001) {
+        setError(null);
+        setIsConnecting(false);
+        throw err;
+      }
+      // Other errors
+      setError(err.message || 'Connection cancelled');
+      throw err;
     } finally {
+      // Only clear isConnecting if we didn't already throw
       setIsConnecting(false);
     }
   }, [switchNetwork]);
@@ -83,7 +92,6 @@ export function useWallet() {
     }
   }, [provider, account]);
 
-  // Listen for account and chain changes
   useEffect(() => {
     if (!window.ethereum) return;
 
@@ -110,11 +118,11 @@ export function useWallet() {
     };
   }, [disconnect, refreshBalance]);
 
-  // Auto-connect if already authorized (uses whichever wallet is default)
+  // Auto-connect if already authorized
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
-        if (accounts.length > 0) connect(window.ethereum);
+        if (accounts.length > 0) connect(window.ethereum).catch(() => {});
       });
     }
   }, []); // eslint-disable-line

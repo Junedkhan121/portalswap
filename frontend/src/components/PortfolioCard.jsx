@@ -122,20 +122,20 @@ export default function PortfolioCard({ wallet, swapEvents }) {
   return (
     <div className="glass-card rounded-3xl overflow-hidden">
       {/* Sub-tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(30,46,74,0.6)', padding: '0 20px' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--border-secondary)', padding: '0 20px' }}>
         {['portfolio', 'history'].map(t => (
           <button key={t} onClick={() => setTab(t)}
             style={{
               padding: '16px 4px', marginRight: 24, fontSize: 14, fontWeight: 600,
-              fontFamily: 'Space Grotesk', background: 'none', border: 'none', cursor: 'pointer',
-              color: tab === t ? '#fff' : '#4e6490',
-              borderBottom: tab === t ? '2px solid #3d7eff' : '2px solid transparent',
+              fontFamily: 'var(--font-primary)', background: 'none', border: 'none', cursor: 'pointer',
+              color: tab === t ? 'var(--text-primary)' : 'var(--text-muted)',
+              borderBottom: tab === t ? '2px solid var(--accent-blue)' : '2px solid transparent',
               transition: 'all 0.15s', marginBottom: -1,
             }}>
             {t === 'portfolio' ? 'Portfolio' : 'Tx History'}
           </button>
         ))}
-        <button onClick={fetchBalances} style={{ marginLeft: 'auto', alignSelf: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#4e6490', padding: 4 }}>
+        <button onClick={fetchBalances} style={{ marginLeft: 'auto', alignSelf: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}>
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
             style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -147,14 +147,14 @@ export default function PortfolioCard({ wallet, swapEvents }) {
         {tab === 'portfolio' ? (
           <>
             {!account ? (
-              <p style={{ textAlign: 'center', color: '#4e6490', fontSize: 14, padding: '32px 0' }}>Connect your wallet to see balances</p>
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, padding: '32px 0' }}>Connect your wallet to see balances</p>
             ) : (
               <>
                 {/* Total value */}
                 <div style={{ textAlign: 'center', padding: '16px 0 20px' }}>
-                  <p style={{ fontSize: 12, color: '#4e6490', marginBottom: 4 }}>Total Portfolio Value</p>
-                  <p style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 32, color: '#e8f0ff' }}>
-                    {totalValue.toFixed(4)} <span style={{ fontSize: 16, color: '#4e6490' }}>{NATIVE_SYMBOL}</span>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Total Portfolio Value</p>
+                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 32, color: 'var(--text-primary)' }}>
+                    {totalValue.toFixed(4)} <span style={{ fontSize: 16, color: 'var(--text-muted)' }}>{NATIVE_SYMBOL}</span>
                   </p>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -162,18 +162,18 @@ export default function PortfolioCard({ wallet, swapEvents }) {
                     const price = prices[t.symbol] ?? 0;
                     const value = parseFloat(t.balance || 0) * price;
                     return (
-                      <div key={t.symbol} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(7,9,15,0.5)', border: '1px solid rgba(30,46,74,0.5)' }}>
+                      <div key={t.symbol} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
                         <TokenAvatar token={t} size={40} />
                         <div style={{ flex: 1 }}>
-                          <p style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 14, color: '#e8f0ff' }}>{t.symbol}</p>
-                          <p style={{ fontSize: 12, color: '#4e6490' }}>{t.name}</p>
+                          <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{t.symbol}</p>
+                          <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t.name}</p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <p style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 14, color: '#e8f0ff' }}>
+                          <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
                             {parseFloat(t.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
                           </p>
                           {price > 0 && (
-                            <p style={{ fontSize: 12, color: '#4e6490' }}>{value.toFixed(4)} {NATIVE_SYMBOL}</p>
+                            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{value.toFixed(4)} {NATIVE_SYMBOL}</p>
                           )}
                         </div>
                       </div>
@@ -186,25 +186,25 @@ export default function PortfolioCard({ wallet, swapEvents }) {
         ) : (
           <>
             {history.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#4e6490', fontSize: 14, padding: '32px 0' }}>No swaps yet. Execute a swap to see history here.</p>
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, padding: '32px 0' }}>No swaps yet. Execute a swap to see history here.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {history.map((tx, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(7,9,15,0.5)', border: '1px solid rgba(30,46,74,0.5)' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                     <div style={{ flex: 1 }}>
-                      <p style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 13, color: '#e8f0ff' }}>
+                      <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
                         {parseFloat(tx.amountIn).toFixed(4)} {tx.from} → {parseFloat(tx.amountOut).toFixed(4)} {tx.to}
                       </p>
-                      <p style={{ fontSize: 11, color: '#4e6490' }}>{timeAgo(tx.time)}</p>
+                      <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{timeAgo(tx.time)}</p>
                     </div>
                     <a href={`https://test-evm-rpc-v3.portaldot.dev`} target="_blank" rel="noopener noreferrer"
                       title={tx.hash}
-                      style={{ fontSize: 11, color: '#3d7eff', fontFamily: 'monospace', background: 'rgba(61,126,255,0.1)', padding: '3px 8px', borderRadius: 6, textDecoration: 'none' }}>
+                      style={{ fontSize: 11, color: 'var(--accent-blue)', fontFamily: 'monospace', background: 'var(--bg-badge)', padding: '3px 8px', borderRadius: 6, textDecoration: 'none' }}>
                       {tx.hash.slice(0, 8)}…
                     </a>
                   </div>
