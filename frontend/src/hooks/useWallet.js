@@ -35,18 +35,19 @@ export function useWallet() {
     }
   }, []);
 
-  const connect = useCallback(async () => {
-    if (!window.ethereum) {
+  const connect = useCallback(async (injectedProvider) => {
+    const providerToUse = injectedProvider || window.ethereum;
+    if (!providerToUse) {
       setError('Please install MetaMask or OKX Wallet');
       return;
     }
     setIsConnecting(true);
     setError(null);
     try {
-      const accounts = await window.ethereum.request({
+      const accounts = await providerToUse.request({
         method: 'eth_requestAccounts',
       });
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
+      const browserProvider = new ethers.BrowserProvider(providerToUse);
       const network = await browserProvider.getNetwork();
       const newSigner = await browserProvider.getSigner();
       const bal = await browserProvider.getBalance(accounts[0]);
@@ -109,14 +110,14 @@ export function useWallet() {
     };
   }, [disconnect, refreshBalance]);
 
-  // Auto-connect if already authorized
+  // Auto-connect if already authorized (uses whichever wallet is default)
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.request({ method: 'eth_accounts' }).then((accounts) => {
-        if (accounts.length > 0) connect();
+        if (accounts.length > 0) connect(window.ethereum);
       });
     }
-  }, [connect]);
+  }, []); // eslint-disable-line
 
   return {
     account,
