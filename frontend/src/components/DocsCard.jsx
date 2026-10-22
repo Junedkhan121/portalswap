@@ -5,6 +5,7 @@ const SECTIONS = [
   { id: 'intro',     label: 'What is PortalSwap', icon: '🔷' },
   { id: 'how',       label: 'How it works', icon: '⚙️' },
   { id: 'start',     label: 'Getting started', icon: '🚀' },
+  { id: 'faucet',    label: 'Faucet', icon: '⛽' },
   { id: 'swap',      label: 'Swapping tokens', icon: '🔄' },
   { id: 'liquidity', label: 'Adding liquidity', icon: '💧' },
   { id: 'fees',      label: 'Fees & rewards', icon: '💰' },
@@ -270,8 +271,8 @@ export default function DocsCard() {
             <Step n="2" title="Add Portaldot V3 Testnet">
               Click the <strong style={{ color: 'var(--accent-blue)' }}>Add Network</strong> button in the top-right corner of PortalSwap. Your wallet will show a popup — approve it to add the Portaldot V3 Testnet automatically.
             </Step>
-            <Step n="3" title="Get testnet tPOTv3 tokens">
-              Join the <a href="https://discord.gg/portaldot" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)' }}>Portaldot Discord</a> and visit the faucet channel. Paste your wallet address and receive free tPOTv3 for gas fees.
+            <Step n="3" title="Claim tPOTv3 gas tokens">
+              Open the <strong style={{ color: 'var(--text-primary)' }}>Faucet</strong> tab. Under "Get tPOTv3 Gas Tokens", paste your wallet address and click <strong style={{ color: 'var(--accent-blue)' }}>Claim 1 tPOTv3</strong>. The contract sends gas tokens directly to your wallet. If you're new and have zero gas, ask a friend to call claim on your behalf — the faucet sends to any address.
             </Step>
             <Step n="4" title="Connect your wallet">
               Click <strong style={{ color: 'var(--accent-blue)' }}>Connect Wallet</strong> in the header. Approve the connection request in your wallet. Your balance will appear in the top bar.
@@ -279,6 +280,65 @@ export default function DocsCard() {
             <Step n="5" title="Get test tokens from the Faucet">
               Open the <strong style={{ color: 'var(--text-primary)' }}>Faucet</strong> tab and click Mint next to any token (pUSDT, pDAI, pWBTC, pLINK). These are free testnet tokens with no real value, used to try the DEX.
             </Step>
+          </section>
+
+          {/* Faucet */}
+          <section id="doc-faucet" style={{ marginBottom: 48 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)', margin: 0 }}>
+                Faucet
+              </h2>
+              <Badge color="var(--accent-green)">Live</Badge>
+            </div>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 16 }}>
+              The PortalSwap Faucet has two parts. The <strong style={{ color: 'var(--text-primary)' }}>tPOTv3 Gas Faucet</strong> dispenses
+              native gas tokens so brand-new wallets can start transacting without going through Discord. The{' '}
+              <strong style={{ color: 'var(--text-primary)' }}>Token Faucet</strong> lets you mint small amounts of each test ERC-20
+              (pUSDT, pDAI, pWBTC, pLINK) to try swapping and adding liquidity.
+            </p>
+
+            {/* tPOTv3 gas faucet details */}
+            <div style={{ padding: 16, borderRadius: 16, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', marginBottom: 16 }}>
+              <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 14, color: 'var(--accent-green)', marginBottom: 10 }}>⛽ tPOTv3 Gas Faucet</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 12 }}>
+                {[
+                  { label: 'Drip amount', value: '1 tPOTv3' },
+                  { label: 'Cooldown', value: '72 hours' },
+                  { label: 'Pool size', value: '1 000 tPOTv3' },
+                ].map(s => (
+                  <div key={s.label} style={{ textAlign: 'center', padding: '10px 8px', borderRadius: 12, background: 'var(--bg-input)' }}>
+                    <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)', marginBottom: 2 }}>{s.value}</p>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>
+                The faucet contract pushes tPOTv3 directly to the recipient address —
+                no wallet needed to call <Code>claim()</Code>. A friend or relayer can pay
+                the gas and specify your address. Cooldown is tracked per recipient, not per caller.
+              </p>
+            </div>
+
+            {/* Community donation */}
+            <div style={{ padding: 14, borderRadius: 14, background: 'rgba(61,126,255,0.06)', border: '1px solid rgba(61,126,255,0.15)', marginBottom: 16 }}>
+              <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--accent-blue)', marginBottom: 6 }}>💧 Community donation loop</p>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>
+                Once you have enough tPOTv3, please consider donating some back. Open the
+                Faucet tab, scroll to the Donate section, enter an amount, and click Donate.
+                Your tPOTv3 is added to the pool so the next user can claim. The faucet is
+                sustained entirely by the community.
+              </p>
+            </div>
+
+            {/* Contract address callout */}
+            <div style={{ padding: '10px 16px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid var(--border-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-primary)', fontWeight: 600 }}>tPotFaucet contract</span>
+              <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--accent-blue)', cursor: 'pointer', userSelect: 'all' }}
+                onClick={() => navigator.clipboard.writeText(ADDRESSES.tPotFaucet)}
+                title="Click to copy">
+                {ADDRESSES.tPotFaucet}
+              </span>
+            </div>
           </section>
 
           {/* Swapping */}
@@ -361,9 +421,10 @@ export default function DocsCard() {
             </h2>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>Portaldot V3 Testnet · Chain ID 420420777</p>
             <div style={{ background: 'var(--bg-input)', border: '1px solid var(--border-secondary)', borderRadius: 16, padding: '4px 16px' }}>
-              <ContractRow label="WPOT"    address={ADDRESSES.WPOT} />
-              <ContractRow label="Factory" address={ADDRESSES.Factory} />
-              <ContractRow label="Router"  address={ADDRESSES.Router} />
+              <ContractRow label="WPOT"         address={ADDRESSES.WPOT} />
+              <ContractRow label="Factory"      address={ADDRESSES.Factory} />
+              <ContractRow label="Router"       address={ADDRESSES.Router} />
+              <ContractRow label="tPotFaucet"   address={ADDRESSES.tPotFaucet} />
               {TOKENS.filter(t => !t.isNative && t.symbol !== 'WPOT').map(t => (
                 <ContractRow key={t.symbol} label={t.symbol} address={t.address} />
               ))}

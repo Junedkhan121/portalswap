@@ -56,3 +56,13 @@ export const WPOT_ABI = [
   "function approve(address guy, uint256 wad) returns (bool)",
   "function allowance(address, address) view returns (uint256)",
 ];
+
+export const TPOT_FAUCET_ABI = [
+  "function claim(address payable recipient) external",
+  "function donate() external payable",
+  "function cooldownRemaining(address addr) external view returns (uint256)",
+  "function poolBalance() external view returns (uint256)",
+  "function lastClaimTime(address) external view returns (uint256)",
+  "event Claimed(address indexed recipient, uint256 amount)",
+  "event Donated(address indexed donor, uint256 amount)",
+];

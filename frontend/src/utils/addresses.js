@@ -15,6 +15,8 @@ export const ADDRESSES = {
   WPOT: "0xf67cE92096E4E171060B71bF0cca0DA9f9548c03",
   Factory: "0xC631805C297c4233B33c30aF91245058902C1D18",
   Router: "0xc17510Df29ae5E4C6C2A46CCB03197edd0963f2B",
+  // Deployed separately — run: npx hardhat run scripts/deploy-faucet.js --network portaldotTestnet
+  tPotFaucet: "0x2A9DFCC235d7169a9C0817eE0e27e51A6df95be0",
 };
 
 // Test tokens (deployed alongside core contracts)
