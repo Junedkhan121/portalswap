@@ -186,29 +186,67 @@ export default function PortfolioCard({ wallet, swapEvents }) {
         ) : (
           <>
             {history.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, padding: '32px 0' }}>No swaps yet. Execute a swap to see history here.</p>
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, padding: '32px 0' }}>No transactions yet. Swap or add liquidity to see history here.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {history.map((tx, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--accent-green)" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
+                {history.map((tx, i) => {
+                  const type = tx.type || 'swap';
+
+                  // Icon config per type
+                  const iconConfig = {
+                    swap:   { bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.3)',  color: '#10b981' },
+                    add:    { bg: 'rgba(61,126,255,0.15)',  border: 'rgba(61,126,255,0.3)',  color: '#3d7eff' },
+                    remove: { bg: 'rgba(239,68,68,0.15)',   border: 'rgba(239,68,68,0.3)',   color: '#ef4444' },
+                  }[type] || { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.3)', color: '#10b981' };
+
+                  const icon = type === 'swap' ? (
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                  ) : type === 'add' ? (
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m-8-8h16"/>
+                    </svg>
+                  ) : (
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4"/>
+                    </svg>
+                  );
+
+                  let label = '';
+                  let sublabel = '';
+                  if (type === 'swap') {
+                    label = `${parseFloat(tx.amountIn).toFixed(4)} ${tx.from} → ${parseFloat(tx.amountOut).toFixed(4)} ${tx.to}`;
+                    sublabel = 'Swap';
+                  } else if (type === 'add') {
+                    label = `${parseFloat(tx.amountA).toFixed(4)} ${tx.symbolA} + ${parseFloat(tx.amountB).toFixed(4)} ${tx.symbolB}`;
+                    sublabel = tx.lpReceived && parseFloat(tx.lpReceived) > 0
+                      ? `Added liquidity · +${parseFloat(tx.lpReceived).toFixed(6)} LP`
+                      : 'Added liquidity';
+                  } else {
+                    label = `${tx.symbolA} / ${tx.symbolB}`;
+                    sublabel = `Removed ${parseFloat(tx.lpAmount).toFixed(6)} LP`;
+                  }
+
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: iconConfig.bg, border: `1px solid ${iconConfig.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {label}
+                        </p>
+                        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{sublabel} · {timeAgo(tx.time)}</p>
+                      </div>
+                      <a href={`https://test-evm-rpc-v3.portaldot.dev`} target="_blank" rel="noopener noreferrer"
+                        title={tx.hash}
+                        style={{ fontSize: 11, color: 'var(--accent-blue)', fontFamily: 'monospace', background: 'var(--bg-badge)', padding: '3px 8px', borderRadius: 6, textDecoration: 'none', flexShrink: 0 }}>
+                        {tx.hash?.slice(0, 8)}…
+                      </a>
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>
-                        {parseFloat(tx.amountIn).toFixed(4)} {tx.from} → {parseFloat(tx.amountOut).toFixed(4)} {tx.to}
-                      </p>
-                      <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{timeAgo(tx.time)}</p>
-                    </div>
-                    <a href={`https://test-evm-rpc-v3.portaldot.dev`} target="_blank" rel="noopener noreferrer"
-                      title={tx.hash}
-                      style={{ fontSize: 11, color: 'var(--accent-blue)', fontFamily: 'monospace', background: 'var(--bg-badge)', padding: '3px 8px', borderRadius: 6, textDecoration: 'none' }}>
-                      {tx.hash.slice(0, 8)}…
-                    </a>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>

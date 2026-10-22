@@ -124,7 +124,7 @@ function LiquiditySuccessCard({ result, onClose }) {
 }
 
 /* ── Main LiquidityCard ──────────────────────────────────────── */
-export default function LiquidityCard({ wallet }) {
+export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
   const { account, signer, connect } = wallet;
   const [mode, setMode] = useState('add');
   const [tokenA, setTokenA] = useState(TOKENS[0]);
@@ -256,6 +256,12 @@ export default function LiquidityCard({ wallet }) {
         amountA, amountB, lpReceived, hash: receipt.hash,
       });
       setConfetti(true);
+      // Save to tx history
+      const entry = { type: 'add', symbolA: tokenA.symbol, symbolB: tokenB.symbol, amountA, amountB, lpReceived, time: Date.now(), hash: receipt.hash };
+      const hist = JSON.parse(sessionStorage.getItem('ps_history') || '[]');
+      hist.unshift(entry);
+      sessionStorage.setItem('ps_history', JSON.stringify(hist.slice(0, 30)));
+      onLiquiditySuccess?.(entry);
       setAmountA('');
       setAmountB('');
     } catch (err) {
@@ -292,8 +298,14 @@ export default function LiquidityCard({ wallet }) {
       } else {
         tx = await router.removeLiquidity(addrA, addrB, lpAmount, 0, 0, account, deadline);
       }
-      await tx.wait();
+      const receipt = await tx.wait();
       toast.success('Liquidity removed!', { id: toastId });
+      // Save to tx history
+      const entry = { type: 'remove', symbolA: tokenA.symbol, symbolB: tokenB.symbol, lpAmount: removeAmount, time: Date.now(), hash: receipt.hash };
+      const hist = JSON.parse(sessionStorage.getItem('ps_history') || '[]');
+      hist.unshift(entry);
+      sessionStorage.setItem('ps_history', JSON.stringify(hist.slice(0, 30)));
+      onLiquiditySuccess?.(entry);
       setRemoveAmount('');
       fetchPairInfo();
     } catch (err) {

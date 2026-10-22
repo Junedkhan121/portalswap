@@ -44,7 +44,7 @@ export default function App() {
 
       <main className="mx-auto px-4 pt-8 pb-24" style={{ maxWidth: wide ? 900 : 512 }}>
         {activeTab === 'swap'      && <SwapCard wallet={wallet} onSwapSuccess={e => { setLastSwap(e); }} />}
-        {activeTab === 'liquidity' && <LiquidityCard wallet={wallet} />}
+        {activeTab === 'liquidity' && <LiquidityCard wallet={wallet} onLiquiditySuccess={e => { setLastSwap(e); }} />}
         {activeTab === 'analytics' && <AnalyticsCard wallet={wallet} />}
         {activeTab === 'portfolio' && <PortfolioCard wallet={wallet} swapEvents={lastSwap} />}
         {activeTab === 'faucet'    && <FaucetCard wallet={wallet} />}
