@@ -56,6 +56,8 @@ export default function FaucetCard({ wallet }) {
   const [claiming,    setClaiming]    = useState(false);
   const [donateAmt,   setDonateAmt]   = useState('');
   const [donating,    setDonating]    = useState(false);
+  const [relayLoading,setRelayLoading]= useState(false);
+  const [relayHash,   setRelayHash]   = useState(null);
 
   // Pre-fill recipient with connected wallet
   useEffect(() => {
@@ -132,6 +134,32 @@ export default function FaucetCard({ wallet }) {
 
   const eligible = faucetDeployed && cooldownSecs === 0 && ethers.isAddress(recipient);
 
+  // Relay claim — no wallet needed
+  const handleRelayClaim = async () => {
+    if (!faucetDeployed || !ethers.isAddress(recipient)) return;
+    setRelayLoading(true);
+    setRelayHash(null);
+    const id = toast.loading('Requesting 1 tPOTv3 via relay…');
+    try {
+      const resp = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'Relay failed');
+      toast.success('1 tPOTv3 sent to your wallet!', { id });
+      setRelayHash(data.hash);
+      setCooldownSecs(72 * 3600);
+      fetchFaucetInfo();
+    } catch (err) {
+      const msg = err.message || 'Relay failed';
+      toast.error(msg.includes('ooldown') ? 'Still on cooldown — wait 72 hours' : msg, { id });
+    } finally {
+      setRelayLoading(false);
+    }
+  };
+
   /* ── Render ──────────────────────────────────────────────────── */
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -201,36 +229,76 @@ export default function FaucetCard({ wallet }) {
               </div>
             </div>
 
-            {/* Claim button or cooldown */}
-            {cooldownSecs > 0 ? (
+            {/* Cooldown display */}
+            {cooldownSecs > 0 && (
               <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(245,172,55,0.07)', border: '1px solid rgba(245,172,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
-                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--accent-yellow)', marginBottom: 2 }}>Cooldown active</p>
+                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--accent-yellow)', marginBottom: 2 }}>Cooldown active for this address</p>
                   <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>Next claim available in</p>
                 </div>
                 <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: 20, color: 'var(--accent-yellow)' }}>
                   {fmtCountdown(cooldownSecs)}
                 </span>
               </div>
-            ) : (
-              <button
-                onClick={handleClaim}
-                disabled={claiming || !eligible}
-                style={{
-                  width: '100%', marginBottom: 12, padding: '14px 0', borderRadius: 18,
-                  fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-primary)',
-                  background: eligible ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--bg-menu-item)',
-                  color: eligible ? '#fff' : 'var(--text-muted)',
-                  border: 'none', cursor: eligible && !claiming ? 'pointer' : 'not-allowed',
-                  opacity: claiming ? 0.6 : 1, transition: 'all 0.2s',
-                }}>
-                {!account ? 'Connect wallet to claim' : claiming ? (
-                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/><path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                    Sending…
-                  </span>
-                ) : !ethers.isAddress(recipient) ? 'Enter a valid address' : 'Claim 1 tPOTv3'}
-              </button>
+            )}
+
+            {/* ── Primary path: relay (no wallet needed) ── */}
+            {cooldownSecs === 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <button
+                  onClick={handleRelayClaim}
+                  disabled={relayLoading || !faucetDeployed || !ethers.isAddress(recipient)}
+                  style={{
+                    width: '100%', padding: '15px 0', borderRadius: 18,
+                    fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-primary)',
+                    background: ethers.isAddress(recipient) ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--bg-menu-item)',
+                    color: ethers.isAddress(recipient) ? '#fff' : 'var(--text-muted)',
+                    border: 'none', cursor: relayLoading || !ethers.isAddress(recipient) ? 'not-allowed' : 'pointer',
+                    opacity: relayLoading ? 0.65 : 1, transition: 'all 0.2s',
+                  }}>
+                  {relayLoading ? (
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/><path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                      Sending via relay…
+                    </span>
+                  ) : !ethers.isAddress(recipient) ? 'Enter a valid address above'
+                    : '⚡ Get 1 tPOTv3 — no wallet needed'}
+                </button>
+                <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 6, marginBottom: 0 }}>
+                  Relay pays gas on your behalf. Just paste your address and click.
+                </p>
+              </div>
+            )}
+
+            {/* Success: show tx hash */}
+            {relayHash && (
+              <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 12, color: 'var(--accent-green)' }}>Sent!</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{relayHash.slice(0,12)}…{relayHash.slice(-8)}</span>
+              </div>
+            )}
+
+            {/* ── Secondary path: direct wallet (if connected) ── */}
+            {account && cooldownSecs === 0 && (
+              <details style={{ marginBottom: 12 }}>
+                <summary style={{ fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                  Already have tPOTv3? Claim directly with your wallet
+                </summary>
+                <button
+                  onClick={handleClaim}
+                  disabled={claiming || !eligible}
+                  style={{
+                    width: '100%', marginTop: 8, padding: '11px 0', borderRadius: 14,
+                    fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-primary)',
+                    background: 'rgba(61,126,255,0.12)', color: 'var(--accent-blue)',
+                    border: '1px solid rgba(61,126,255,0.3)',
+                    cursor: claiming || !eligible ? 'not-allowed' : 'pointer',
+                    opacity: claiming ? 0.6 : 1, transition: 'all 0.15s',
+                  }}>
+                  {claiming ? 'Claiming…' : 'Claim with my wallet (you pay gas)'}
+                </button>
+              </details>
             )}
 
             {/* Donate back section */}
