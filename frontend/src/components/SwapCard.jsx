@@ -48,41 +48,66 @@ function Confetti({ active, onDone }) {
 /* ── Swap Success Card ────────────────────────────────────────── */
 
 function shareSwapCard({ fromSymbol, toSymbol, amountIn, amountOut }) {
+  // Resolve CSS variables at call-time so canvas gets real hex values
+  const cs  = getComputedStyle(document.documentElement);
+  const cv  = (v) => cs.getPropertyValue(v).trim();
+
   const canvas = document.createElement('canvas');
   canvas.width = 600; canvas.height = 320;
   const ctx = canvas.getContext('2d');
-  // Background
-  const grad = ctx.createLinearGradient(0,0,600,320);
-  grad.addColorStop(0,'var(--bg-primary)'); grad.addColorStop(1,'var(--bg-secondary)');
-  ctx.fillStyle = grad; ctx.fillRect(0,0,600,320);
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, 600, 320);
+  grad.addColorStop(0, cv('--bg-primary') || '#07090f');
+  grad.addColorStop(1, cv('--bg-secondary') || '#0d1424');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 600, 320);
+
   // Border glow
   ctx.strokeStyle = 'rgba(61,126,255,0.4)'; ctx.lineWidth = 1.5;
-  ctx.strokeRect(1,1,598,318);
-  // Header
-  ctx.fillStyle = 'var(--accent-blue)'; ctx.font = 'bold 14px Space Grotesk, sans-serif';
+  ctx.strokeRect(1, 1, 598, 318);
+
+  // Header — brand name
+  ctx.fillStyle = cv('--accent-blue') || '#3d7eff';
+  ctx.font = 'bold 14px "Space Grotesk", sans-serif';
   ctx.fillText('PortalSwap', 32, 44);
-  ctx.fillStyle = 'var(--text-muted)'; ctx.font = '11px Inter, sans-serif';
+  ctx.fillStyle = cv('--text-muted') || '#4e6490';
+  ctx.font = '11px Inter, sans-serif';
   ctx.fillText('AMM DEX · Portaldot V3 Testnet', 32, 62);
-  // Swap label
-  ctx.fillStyle = 'var(--text-primary)'; ctx.font = 'bold 13px Space Grotesk, sans-serif';
+
+  // Label
+  ctx.fillStyle = cv('--text-primary') || '#e8f0ff';
+  ctx.font = 'bold 13px "Space Grotesk", sans-serif';
   ctx.fillText('SWAPPED', 32, 110);
+
   // From amount
-  ctx.fillStyle = 'var(--text-primary)'; ctx.font = 'bold 52px Space Grotesk, sans-serif';
+  ctx.fillStyle = cv('--text-primary') || '#e8f0ff';
+  ctx.font = 'bold 52px "Space Grotesk", sans-serif';
   ctx.fillText(parseFloat(amountIn).toFixed(4), 32, 175);
-  ctx.fillStyle = 'var(--text-secondary)'; ctx.font = 'bold 22px Space Grotesk, sans-serif';
+  ctx.fillStyle = cv('--text-secondary') || '#9ab0d4';
+  ctx.font = 'bold 22px "Space Grotesk", sans-serif';
   ctx.fillText(fromSymbol, 32, 210);
+
   // Arrow
-  ctx.fillStyle = 'var(--accent-blue)'; ctx.font = 'bold 36px sans-serif';
+  ctx.fillStyle = cv('--accent-blue') || '#3d7eff';
+  ctx.font = 'bold 36px sans-serif';
   ctx.fillText('→', 290, 185);
+
   // To amount
-  ctx.fillStyle = 'var(--accent-green)'; ctx.font = 'bold 52px Space Grotesk, sans-serif';
+  ctx.fillStyle = cv('--accent-green') || '#10b981';
+  ctx.font = 'bold 52px "Space Grotesk", sans-serif';
   ctx.fillText(parseFloat(amountOut).toFixed(4), 350, 175);
-  ctx.fillStyle = 'var(--text-secondary)'; ctx.font = 'bold 22px Space Grotesk, sans-serif';
+  ctx.fillStyle = cv('--text-secondary') || '#9ab0d4';
+  ctx.font = 'bold 22px "Space Grotesk", sans-serif';
   ctx.fillText(toSymbol, 350, 210);
-  // Footer
-  ctx.fillStyle = 'rgba(78,100,144,0.6)'; ctx.fillRect(0,270,600,50);
-  ctx.fillStyle = 'var(--text-muted)'; ctx.font = '11px Inter, sans-serif';
-  ctx.fillText('portalswap.dev · Built for Portaldot Hacker House 2026', 32, 300);
+
+  // Footer bar
+  ctx.fillStyle = 'rgba(78,100,144,0.6)';
+  ctx.fillRect(0, 270, 600, 50);
+  ctx.fillStyle = cv('--text-muted') || '#4e6490';
+  ctx.font = '11px Inter, sans-serif';
+  ctx.fillText('portalswap.live · Built for Portaldot Hacker House 2026', 32, 300);
+
   // Download
   const link = document.createElement('a');
   link.download = 'portalswap-swap.png';
