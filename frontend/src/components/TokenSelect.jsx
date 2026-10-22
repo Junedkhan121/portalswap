@@ -5,11 +5,11 @@ import { ERC20_ABI } from '../utils/abis';
 
 const TOKEN_COLORS = {
   tPOTv3: ['var(--accent-blue)', 'var(--accent-purple)'],
-  WPOT:   ['var(--accent-purple)', '#7c3aed'],
-  pUSDT:  ['#26a17b', '#1a7a5e'],
-  pDAI:   ['#f5ac37', '#e08c1a'],
-  pWBTC:  ['#f7931a', '#e07010'],
-  pLINK:  ['#2a5ada', '#1a3ab0'],
+  WPOT:   ['var(--accent-purple)', 'var(--accent-blue)'],
+  pUSDT:  ['var(--accent-green)', 'var(--accent-green)'],
+  pDAI:   ['var(--accent-yellow)', 'var(--accent-yellow)'],
+  pWBTC:  ['var(--accent-orange)', 'var(--accent-orange)'],
+  pLINK:  ['var(--accent-blue)', 'var(--accent-blue)'],
 };
 
 export function TokenAvatar({ token, size = 32 }) {
@@ -109,7 +109,7 @@ export default function TokenSelect({ selectedToken, onSelect, otherToken }) {
               </p>
             </div>
 
-            <div className="max-h-64 overflow-y-auto py-1">
+            <div style={{ maxHeight: 300, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 8 }}>
               {/* Import result */}
               {importing && (
                 <div style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>

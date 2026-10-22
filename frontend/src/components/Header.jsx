@@ -22,19 +22,12 @@ export default function Header({ wallet, activeTab, setActiveTab, tabs }) {
   const { account, balance, isConnecting, isCorrectChain, connect, disconnect, switchNetwork } = wallet;
   const [menuOpen, setMenuOpen]         = useState(false);
   const [adding, setAdding]             = useState(false);
-  const [isDark, setIsDark]             = useState(true);
   const [showWalletModal, setShowWalletModal] = useState(false);
 
   const short = (a) => `${a.slice(0, 6)}...${a.slice(-4)}`;
   const activeLabel = tabs?.find(t => t.id === activeTab)?.label ?? 'PortalSwap';
 
   const handleAddNetwork = async () => { setAdding(true); await addNetwork(); setAdding(false); };
-
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.classList.toggle('light-mode', !next);
-  };
 
   return (
     <>
@@ -59,7 +52,7 @@ export default function Header({ wallet, activeTab, setActiveTab, tabs }) {
                   padding: '7px 12px',
                   borderRadius: 12,
                   background: menuOpen ? 'rgba(61,126,255,0.15)' : 'rgba(22,32,64,0.5)',
-                  border: `1px solid ${menuOpen ? 'rgba(61,126,255,0.35)' : 'var(--border-primary)'}`,
+                  border: menuOpen ? '1px solid rgba(61,126,255,0.35)' : '1px solid var(--border-primary)',
                   cursor: 'pointer',
                   transition: 'all 0.15s'
                 }}>
@@ -155,28 +148,6 @@ export default function Header({ wallet, activeTab, setActiveTab, tabs }) {
               </button>
             )}
 
-            {/* Theme toggle */}
-            <button onClick={toggleTheme} title={isDark ? 'Light mode' : 'Dark mode'}
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 10,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'var(--bg-pill)',
-                border: '1px solid var(--border-primary)',
-                cursor: 'pointer',
-                transition: 'all 0.15s'
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(61,126,255,0.15)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-pill)'}>
-              {isDark
-                ? <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--accent-yellow)" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m8.66-9H21m-18 0H2m14.66-5.66l-.71.71M7.05 17.66l-.71.71M19.07 19.07l-.71-.71M6.34 6.34l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                : <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-              }
-            </button>
-
             {/* Add / Connected network */}
             <button onClick={!isCorrectChain ? handleAddNetwork : undefined} disabled={adding}
               style={{
@@ -191,7 +162,7 @@ export default function Header({ wallet, activeTab, setActiveTab, tabs }) {
                 color: isCorrectChain ? 'var(--accent-green)' : 'var(--accent-blue)',
                 cursor: isCorrectChain ? 'default' : 'pointer',
                 background: isCorrectChain ? 'rgba(16,185,129,0.1)' : 'rgba(61,126,255,0.1)',
-                border: `1px solid ${isCorrectChain ? 'rgba(16,185,129,0.3)' : 'rgba(61,126,255,0.25)'}`,
+                border: isCorrectChain ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(61,126,255,0.25)',
                 opacity: adding ? 0.5 : 1,
                 transition: 'all 0.15s'
               }}

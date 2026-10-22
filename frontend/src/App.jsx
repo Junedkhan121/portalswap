@@ -8,7 +8,6 @@ import AnalyticsCard from './components/AnalyticsCard';
 import FaucetCard from './components/FaucetCard';
 import DocsCard from './components/DocsCard';
 import PortfolioCard from './components/PortfolioCard';
-import PriceTicker from './components/PriceTicker';
 import Footer from './components/Footer';
 
 const TABS = [
@@ -34,15 +33,14 @@ export default function App() {
   const wide = activeTab === 'docs' || activeTab === 'analytics';
 
   return (
-    <div style={{ minHeight: '100vh', background: '#07090f' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <Toaster position="top-right" toastOptions={{
-        style: { background: '#0d1424', color: '#e8f0ff', border: '1px solid rgba(30,46,74,0.9)', fontFamily: 'Inter, sans-serif', fontSize: 14 },
-        success: { iconTheme: { primary: '#10b981', secondary: '#0d1424' } },
-        error:   { iconTheme: { primary: '#ef4444', secondary: '#0d1424' } },
+        style: { background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-menu)', fontFamily: 'var(--font-body)', fontSize: 14 },
+        success: { iconTheme: { primary: 'var(--accent-green)', secondary: 'var(--bg-card)' } },
+        error:   { iconTheme: { primary: 'var(--accent-red)', secondary: 'var(--bg-card)' } },
       }} />
 
       <Header wallet={wallet} activeTab={activeTab} setActiveTab={setActiveTab} tabs={TABS} />
-      <PriceTicker />
 
       <main className="mx-auto px-4 pt-8 pb-24" style={{ maxWidth: wide ? 900 : 512 }}>
         {activeTab === 'swap'      && <SwapCard wallet={wallet} onSwapSuccess={e => { setLastSwap(e); }} />}

@@ -338,7 +338,7 @@ export default function LiquidityCard({ wallet }) {
             style={{
               width: '100%', padding: '16px 0', borderRadius: 20,
               fontSize: 16, fontWeight: 700, fontFamily: 'var(--font-primary)',
-              background: 'linear-gradient(135deg, var(--accent-red), #c92a2a)',
+              background: 'linear-gradient(135deg, var(--accent-red), var(--accent-red-hover))',
               color: '#fff', border: 'none', cursor: account && !isLoading && removeAmount && parseFloat(removeAmount) > 0 ? 'pointer' : 'not-allowed',
               opacity: isLoading || (account && (!removeAmount || parseFloat(removeAmount) === 0)) ? 0.5 : 1,
               transition: 'all 0.2s',

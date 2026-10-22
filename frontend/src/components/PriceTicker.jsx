@@ -4,7 +4,7 @@ import { TOKENS, ADDRESSES, RPC_URL, NATIVE_SYMBOL } from '../utils/addresses';
 import { FACTORY_ABI, PAIR_ABI } from '../utils/abis';
 
 const TOKEN_COLORS = {
-  pUSDT: '#26a17b', pDAI: '#f5ac37', pWBTC: '#f7931a', pLINK: '#2a5ada',
+  pUSDT: 'var(--accent-green)', pDAI: 'var(--accent-yellow)', pWBTC: 'var(--accent-orange)', pLINK: 'var(--accent-blue)',
 };
 
 export default function PriceTicker() {
@@ -75,7 +75,7 @@ export default function PriceTicker() {
   return (
     <div style={{
       borderBottom: '1px solid var(--border-primary)',
-      background: 'rgba(4,6,12,0.8)',
+      background: 'var(--bg-primary)',
       height: 34,
       display: 'flex',
       alignItems: 'center',
@@ -97,17 +97,17 @@ export default function PriceTicker() {
         .ticker-inner:hover { animation-play-state: paused; }
       `}</style>
 
-      {/* LIVE badge — fixed on left */}
+      {/* LIVE badge — fixed on left, starts AFTER the badge width so ticker fills full width */}
       <div style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, zIndex: 2,
         display: 'flex', alignItems: 'center',
-        padding: '0 12px',
-        background: 'linear-gradient(90deg, rgba(4,6,12,1) 60%, transparent)',
+        padding: '0 10px',
+        background: 'linear-gradient(90deg, var(--bg-primary) 75%, transparent)',
         pointerEvents: 'none',
       }}>
         <span style={{
           fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 9,
-          color: 'var(--text-success)', letterSpacing: '0.12em',
+          color: 'var(--accent-green)', letterSpacing: '0.12em',
           background: 'rgba(16,185,129,0.12)',
           border: '1px solid rgba(16,185,129,0.3)',
           borderRadius: 4, padding: '2px 6px',
@@ -121,12 +121,12 @@ export default function PriceTicker() {
       {/* Right fade */}
       <div style={{
         position: 'absolute', right: 0, top: 0, bottom: 0, width: 60, zIndex: 2,
-        background: 'linear-gradient(270deg, rgba(4,6,12,1) 30%, transparent)',
+        background: 'linear-gradient(270deg, var(--bg-primary) 30%, transparent)',
         pointerEvents: 'none',
       }} />
 
-      {/* Scrolling track — two identical halves for seamless loop */}
-      <div className="ticker-inner" style={{ paddingLeft: 80 }}>
+      {/* Scrolling track — two identical halves for seamless loop, no left padding so no gap */}
+      <div className="ticker-inner">
         {/* First copy */}
         {prices.map((item, i) => <Item key={`a-${i}`} item={item} />)}
         {/* Second copy — identical, seamless loop */}

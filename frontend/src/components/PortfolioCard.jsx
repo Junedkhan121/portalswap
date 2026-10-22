@@ -192,7 +192,7 @@ export default function PortfolioCard({ wallet, swapEvents }) {
                 {history.map((tx, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth="2">
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--accent-green)" strokeWidth="2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>

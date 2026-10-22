@@ -73,8 +73,8 @@ export default function WalletModal({ onConnect, onClose }) {
     }} onClick={onClose}>
       <div style={{
         width: 380, borderRadius: 28,
-        background: 'linear-gradient(160deg,#0d1424 0%,#0a1020 100%)',
-        border: '1px solid rgba(61,126,255,0.25)',
+        background: 'var(--bg-modal)',
+        border: '1px solid var(--border-menu)',
         padding: '28px 24px',
         boxShadow: '0 24px 64px rgba(0,0,0,0.8)',
       }} onClick={e => e.stopPropagation()}>
@@ -82,14 +82,14 @@ export default function WalletModal({ onConnect, onClose }) {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <p style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 20, color: '#e8f0ff', marginBottom: 4 }}>
+            <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 20, color: 'var(--text-primary)', marginBottom: 4 }}>
               Connect Wallet
             </p>
-            <p style={{ fontSize: 13, color: '#4e6490' }}>Choose your wallet to continue</p>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Choose your wallet to continue</p>
           </div>
           <button onClick={onClose}
-            style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(22,32,64,0.6)', border: '1px solid rgba(30,46,74,0.8)', cursor: 'pointer' }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#4e6490" strokeWidth="2.5">
+            style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-pill)', border: '1px solid var(--border-primary)', cursor: 'pointer' }}>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--text-muted)" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -105,7 +105,7 @@ export default function WalletModal({ onConnect, onClose }) {
                   display: 'flex', alignItems: 'center', gap: 14,
                   padding: '16px 18px', borderRadius: 18, width: '100%',
                   background: connecting === wallet.id ? 'rgba(61,126,255,0.15)' : 'rgba(22,32,64,0.5)',
-                  border: `1px solid ${connecting === wallet.id ? 'rgba(61,126,255,0.4)' : 'rgba(30,46,74,0.7)'}`,
+                  border: connecting === wallet.id ? '1px solid rgba(61,126,255,0.4)' : '1px solid rgba(30,46,74,0.7)',
                   cursor: connecting ? 'wait' : 'pointer',
                   transition: 'all 0.15s', opacity: connecting && connecting !== wallet.id ? 0.5 : 1,
                 }}
@@ -113,18 +113,18 @@ export default function WalletModal({ onConnect, onClose }) {
                 onMouseLeave={e => { if (!connecting) { e.currentTarget.style.background='rgba(22,32,64,0.5)'; e.currentTarget.style.borderColor='rgba(30,46,74,0.7)'; }}}>
                 <span style={{ fontSize: 28, flexShrink: 0 }}>{wallet.icon}</span>
                 <div style={{ textAlign: 'left', flex: 1 }}>
-                  <p style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 16, color: '#e8f0ff' }}>
+                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>
                     {wallet.name}
                   </p>
-                  <p style={{ fontSize: 12, color: '#4e6490' }}>Detected · Ready to connect</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Detected · Ready to connect</p>
                 </div>
                 {connecting === wallet.id ? (
                   <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="#3d7eff" strokeWidth="3" opacity="0.25"/>
-                    <path fill="#3d7eff" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    <circle cx="12" cy="12" r="10" stroke="var(--accent-blue)" strokeWidth="3" opacity="0.25"/>
+                    <path fill="var(--accent-blue)" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
                 ) : (
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#4e6490" strokeWidth="2">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--text-muted)" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
                   </svg>
                 )}
@@ -134,27 +134,27 @@ export default function WalletModal({ onConnect, onClose }) {
         ) : (
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
             <p style={{ fontSize: 32, marginBottom: 12 }}>🦊</p>
-            <p style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 16, color: '#e8f0ff', marginBottom: 8 }}>
+            <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 16, color: 'var(--text-primary)', marginBottom: 8 }}>
               No wallet detected
             </p>
-            <p style={{ fontSize: 13, color: '#4e6490', lineHeight: 1.6, marginBottom: 20 }}>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 20 }}>
               Install MetaMask, OKX Wallet, or Rabby to get started.
             </p>
             <a href="https://metamask.io/download" target="_blank" rel="noopener noreferrer"
-              style={{ display: 'inline-block', padding: '10px 20px', borderRadius: 12, background: 'rgba(61,126,255,0.15)', color: '#3d7eff', border: '1px solid rgba(61,126,255,0.3)', fontSize: 13, fontWeight: 600, fontFamily: 'Space Grotesk', textDecoration: 'none' }}>
+              style={{ display: 'inline-block', padding: '10px 20px', borderRadius: 12, background: 'rgba(61,126,255,0.15)', color: 'var(--accent-blue)', border: '1px solid rgba(61,126,255,0.3)', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-primary)', textDecoration: 'none' }}>
               Install MetaMask →
             </a>
           </div>
         )}
 
         {error && (
-          <p style={{ marginTop: 14, fontSize: 13, color: '#ef4444', textAlign: 'center', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '8px 14px' }}>
+          <p style={{ marginTop: 14, fontSize: 13, color: 'var(--accent-red)', textAlign: 'center', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '8px 14px' }}>
             {error}
           </p>
         )}
 
         {/* Footer */}
-        <p style={{ marginTop: 20, fontSize: 11, color: '#4e6490', textAlign: 'center', lineHeight: 1.6 }}>
+        <p style={{ marginTop: 20, fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.6 }}>
           By connecting you agree to use this testnet DEX at your own risk.
           Never share your seed phrase.
         </p>

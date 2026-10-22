@@ -17,7 +17,7 @@ const Badge = ({ children, color = 'var(--accent-blue)' }) => (
   <span style={{
     display: 'inline-block', padding: '2px 10px', borderRadius: 20,
     fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-primary)',
-    background: `${color}20`, color, border: `1px solid ${color}40`,
+    background: `${color}20`, color: color, border: `1px solid ${color}40`,
   }}>{children}</span>
 );
 
@@ -365,7 +365,7 @@ export default function DocsCard() {
               { phase: 'Phase 1', status: 'done',    title: 'Testnet launch',         items: ['Core AMM contracts (Factory, Router, Pair)', 'WPOT wrapper', 'React frontend with Swap, Liquidity, Analytics, Faucet', 'Deployment on Portaldot V3 Testnet'] },
               { phase: 'Phase 2', status: 'active',  title: 'DeFi primitives',         items: ['Multi-hop routing (A→B→C swaps)', 'Price oracle integration (TWAP)', 'LP staking & farming rewards', 'Token pair creation UI'] },
               { phase: 'Phase 3', status: 'planned', title: 'Governance & mainnet',    items: ['SWAP governance token', 'On-chain voting for fee parameters', 'Mainnet deployment when available', 'Audit by third-party security firm'] },
-              { phase: 'Phase 4', status: 'planned', title: 'Advanced features',       items: ['Limit orders via keeper bots', 'Concentrated liquidity (V3-style)', 'Cross-chain bridge integration', 'Mobile-first PWA'] },
+              { phase: 'Phase 4', status: 'planned', title: 'Advanced features',       items: ['Limit orders via keeper bots', 'Concentrated liquidity (V3-style)', 'Cross-chain bridge — bridge tokens between Portaldot and other EVM chains', 'Mobile-first PWA'] },
             ].map(({ phase, status, title, items }) => {
               const colors = { done: 'var(--accent-green)', active: 'var(--accent-blue)', planned: 'var(--text-muted)' };
               const labels = { done: 'Complete', active: 'In progress', planned: 'Planned' };

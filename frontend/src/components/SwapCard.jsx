@@ -94,10 +94,10 @@ function SwapSuccessCard({ result, onClose }) {
   const { fromSymbol, toSymbol, amountIn, amountOut, hash } = result;
   return (
     <div style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.7)', backdropFilter:'blur(8px)' }}>
-      <div style={{ width:360, borderRadius:28, background:'linear-gradient(160deg,var(--bg-secondary) 0%,var(--bg-card-hover) 100%)', border:'1px solid rgba(16,185,129,0.35)', padding:'36px 28px 28px', boxShadow:'0 0 60px rgba(16,185,129,0.15), 0 24px 64px rgba(0,0,0,0.8)', textAlign:'center' }>
+      <div style={{ width:360, borderRadius:28, background:'linear-gradient(160deg,var(--bg-secondary) 0%,var(--bg-card-hover) 100%)', border:'1px solid rgba(16,185,129,0.35)', padding:'36px 28px 28px', boxShadow:'0 0 60px rgba(16,185,129,0.15), 0 24px 64px rgba(0,0,0,0.8)', textAlign:'center' }}>
 
         {/* Check icon */}
-        <div style={{ width:72, height:72, borderRadius:'50%', margin:'0 auto 20px', background:'linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05))', border:'2px solid rgba(16,185,129,0.5)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'var(--shadow-glow-green)' }}>
+        <div style={{ width:72, height:72, borderRadius:'50%', margin:'0 auto 20px', background:'linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05))', border:'2px solid rgba(16,185,129,0.5)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 6px var(--accent-green)' }}>
           <svg width="34" height="34" fill="none" viewBox="0 0 24 24" stroke="var(--accent-green)" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
@@ -258,9 +258,12 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
           const rOut = parseFloat(ethers.formatUnits(inIs0 ? res[1] : res[0], tokenOut.decimals));
           if (rIn > 0) {
             const impact = (1 - (parseFloat(out)/parseFloat(inputAmount)) / (rOut/rIn)) * 100;
-            if (isFinite(impact) && impact >= 0) {
+            // Only show if result is a realistic single-hop impact (0–50%)
+            if (isFinite(impact) && impact >= 0 && impact <= 50) {
               setPriceImpact(impact < 0.01 ? '<0.01' : impact.toFixed(2));
               setAutoSlip(Math.min(impact + 0.5, 5).toFixed(1));
+            } else {
+              setPriceImpact(null);
             }
           }
         }
@@ -334,7 +337,13 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
   };
 
   const route = routePath?.length > 2
-    ? `${tokenIn?.symbol} → ${routePath.slice(1,-1).map(a => TOKENS.find(t=>(t.isNative?ADDRESSES.WPOT:t.address)?.toLowerCase()===a.toLowerCase())?.symbol||a.slice(0,6)).join(' → ')} → ${tokenOut?.symbol}`
+    ? (() => {
+        const midSymbols = routePath.slice(1, -1).map(a => {
+          const t = TOKENS.find(t => (t.isNative ? ADDRESSES.WPOT : t.address)?.toLowerCase() === a.toLowerCase());
+          return t?.symbol || a.slice(0, 6);
+        }).join(' → ');
+        return `${tokenIn?.symbol} → ${midSymbols} → ${tokenOut?.symbol}`;
+      })()
     : null;
 
   return (
@@ -347,7 +356,7 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
         <div className="flex items-center justify-between mb-5">
           <h2 style={{ fontFamily:'var(--font-primary)', fontWeight:700, fontSize:20, color:'var(--text-primary)' }}>Swap</h2>
           <button onClick={() => setShowSettings(!showSettings)}
-            style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background:showSettings?'rgba(61,126,255,0.15)':'var(--bg-pill)', border:`1px solid ${showSettings?'rgba(61,126,255,0.3)':'var(--border-primary)'}`, cursor:'pointer' }}>
+            style={{ width:36, height:36, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', background: showSettings ? 'rgba(61,126,255,0.15)' : 'var(--bg-pill)', border: showSettings ? '1px solid rgba(61,126,255,0.3)' : '1px solid var(--border-primary)', cursor:'pointer' }}>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={showSettings?'var(--accent-blue)':'var(--text-muted)'} strokeWidth="1.8">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
