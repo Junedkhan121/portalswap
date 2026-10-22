@@ -66,6 +66,7 @@ const FeatureCard = ({ icon, title, desc }) => (
 export default function DocsCard() {
   const [active, setActive] = useState('intro');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef(null);
 
   const scrollTo = (id) => {
@@ -107,6 +108,19 @@ export default function DocsCard() {
     });
     return () => observer.disconnect();
   }, [active]);
+
+  // Track scroll progress
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const update = () => {
+      const max = el.scrollHeight - el.clientHeight;
+      setScrollProgress(max > 0 ? Math.round((el.scrollTop / max) * 100) : 0);
+    };
+    el.addEventListener('scroll', update, { passive: true });
+    update();
+    return () => el.removeEventListener('scroll', update);
+  }, []);
 
   return (
     <div className="glass-card rounded-3xl overflow-hidden" style={{ minHeight: 600 }}>
@@ -423,34 +437,12 @@ export default function DocsCard() {
             textAlign: 'center'
           }}>
             <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0, fontFamily: 'var(--font-body)' }}>
-              Scroll progress: <span id="scroll-progress" style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>0%</span>
+              Scroll progress: <span style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>{scrollProgress}%</span>
             </p>
           </div>
 
         </div>
       </div>
-
-      {/* Scroll progress script */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          (function() {
-            const content = document.querySelector('[data-root] > div:last-child') ||
-              document.querySelector('.glass-card > div:last-child') ||
-              document.querySelector('main');
-            const progressEl = document.getElementById('scroll-progress');
-            if (content && progressEl) {
-              const updateProgress = () => {
-                const scrollTop = content.scrollTop;
-                const scrollHeight = content.scrollHeight - content.clientHeight;
-                const pct = scrollHeight > 0 ? Math.round((scrollTop / scrollHeight) * 100) : 0;
-                progressEl.textContent = pct + '%';
-              };
-              content.addEventListener('scroll', updateProgress, { passive: true });
-              updateProgress();
-            }
-          })();
-        `
-      }} />
     </div>
   );
 }
