@@ -12,6 +12,7 @@ async function addNetwork() {
 const PAGE_DESCS = {
   swap:      'Trade tokens instantly',
   liquidity: 'Provide liquidity & earn fees',
+  stake:     'Stake tPOTv3 & track TVL',
   analytics: 'Pool stats & price charts',
   portfolio: 'Your balances & LP positions',
   faucet:    'Get free test tokens',

@@ -38,8 +38,17 @@ export default async function handler(req, res) {
   try {
     // Lock network to avoid ethers v6 making extra fee-detection RPC calls
     // that fail on Portaldot (Paris EVM, no EIP-1559).
-    const network   = new ethers.Network('portaldotV3', 420420777);
-    const provider  = new ethers.JsonRpcProvider(RPC_URL, network, { staticNetwork: network });
+    const network     = new ethers.Network('portaldotV3', 420420777);
+    const provider    = new ethers.JsonRpcProvider(RPC_URL, network, { staticNetwork: network });
+
+    // Override getFeeData so ethers never tries EIP-1559 maxFeePerGas — Portaldot
+    // is a Paris-EVM chain and rejects those fields entirely.
+    provider.getFeeData = async () => ({
+      gasPrice:             100000n,
+      maxFeePerGas:         null,
+      maxPriorityFeePerGas: null,
+    });
+
     const relayWallet = new ethers.Wallet(relayKey, provider);
     const faucet      = new ethers.Contract(FAUCET_ADDR, FAUCET_ABI, relayWallet);
 
