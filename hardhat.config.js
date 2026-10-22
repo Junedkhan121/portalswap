@@ -30,10 +30,8 @@ module.exports = {
       url: "https://test-evm-rpc-v3.portaldot.dev",
       chainId: 420420777,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 50000000000,   // 50 gwei legacy
-      gas: 6000000,
-      // Force legacy transactions (type 0) — some testnets reject EIP-1559
-      // Remove type, maxFeePerGas, maxPriorityFeePerGas
+      gasPrice: 100000,
+      gas: 10000000,  // bumped for larger contracts like Router
     },
     localhost: {
       url: "http://127.0.0.1:8545",

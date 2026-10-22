@@ -12,9 +12,9 @@ export const BLOCK_EXPLORER = ""; // Add if available
 
 // Replace these with your deployed contract addresses
 export const ADDRESSES = {
-  WPOT: "0x0000000000000000000000000000000000000000",
-  Factory: "0x0000000000000000000000000000000000000000",
-  Router: "0x0000000000000000000000000000000000000000",
+  WPOT: "0xf67cE92096E4E171060B71bF0cca0DA9f9548c03",
+  Factory: "0xC631805C297c4233B33c30aF91245058902C1D18",
+  Router: "0xc17510Df29ae5E4C6C2A46CCB03197edd0963f2B",
 };
 
 // Test tokens (deployed alongside core contracts)
@@ -30,14 +30,14 @@ export const TOKENS = [
   {
     symbol: "WPOT",
     name: "Wrapped POT",
-    address: ADDRESSES.WPOT,
+    address: "0xf67cE92096E4E171060B71bF0cca0DA9f9548c03",
     decimals: 18,
     logo: "🟣",
   },
   {
     symbol: "pUSDT",
     name: "Portal USDT",
-    address: "0x0000000000000000000000000000000000000000",
+    address: "0xe0114Adc0a2072B602C645f5a07EeFA1eaDBDbc2",
     decimals: 6,
     logo: "💵",
     mintable: true,
@@ -45,7 +45,7 @@ export const TOKENS = [
   {
     symbol: "pDAI",
     name: "Portal DAI",
-    address: "0x0000000000000000000000000000000000000000",
+    address: "0x83DF1D2fD7E110c93234911E1798A6415F536D96",
     decimals: 18,
     logo: "🟡",
     mintable: true,
@@ -53,7 +53,7 @@ export const TOKENS = [
   {
     symbol: "pWBTC",
     name: "Portal Wrapped BTC",
-    address: "0x0000000000000000000000000000000000000000",
+    address: "0x35fdB379dd79c8D1AbaB5ed65192cfc0F0ec7bb2",
     decimals: 8,
     logo: "🟠",
     mintable: true,
@@ -61,7 +61,7 @@ export const TOKENS = [
   {
     symbol: "pLINK",
     name: "Portal LINK",
-    address: "0x0000000000000000000000000000000000000000",
+    address: "0xDFCd9E24Bc91b4886CDF773944C2FC311ea9e766",
     decimals: 18,
     logo: "🔗",
     mintable: true,

@@ -1,0 +1,137 @@
+import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import { TOKENS, ADDRESSES, RPC_URL, NATIVE_SYMBOL } from '../utils/addresses';
+import { FACTORY_ABI, PAIR_ABI } from '../utils/abis';
+
+const TOKEN_COLORS = {
+  pUSDT: '#26a17b', pDAI: '#f5ac37', pWBTC: '#f7931a', pLINK: '#2a5ada',
+};
+
+export default function PriceTicker() {
+  const [prices, setPrices] = useState([]);
+
+  useEffect(() => {
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const load = async () => {
+      if (ADDRESSES.Factory === ethers.ZeroAddress) return;
+      try {
+        const factory = new ethers.Contract(ADDRESSES.Factory, FACTORY_ABI, provider);
+        const items = [];
+        for (const t of TOKENS) {
+          if (t.isNative || t.symbol === 'WPOT') continue;
+          if (!t.address || t.address === '0x0000000000000000000000000000000000000000') continue;
+          try {
+            const pairAddr = await factory.getPair(ADDRESSES.WPOT, t.address);
+            if (!pairAddr || pairAddr === ethers.ZeroAddress) continue;
+            const pair = new ethers.Contract(pairAddr, PAIR_ABI, provider);
+            const [token0, res] = await Promise.all([pair.token0(), pair.getReserves()]);
+            const wpotIs0 = ADDRESSES.WPOT.toLowerCase() === token0.toLowerCase();
+            const rW = parseFloat(ethers.formatEther(wpotIs0 ? res[0] : res[1]));
+            const rT = parseFloat(ethers.formatUnits(wpotIs0 ? res[1] : res[0], t.decimals));
+            if (rT > 0) items.push({ symbol: t.symbol, price: rW / rT });
+          } catch { /* pair missing */ }
+        }
+        if (items.length > 0) setPrices(items);
+      } catch { /* silent */ }
+    };
+    load();
+    const iv = setInterval(load, 30000);
+    return () => clearInterval(iv);
+  }, []);
+
+  if (prices.length === 0) return null;
+
+  const speed = Math.max(prices.length * 8, 20); // seconds for one full pass
+
+  const Item = ({ item }) => {
+    const color = TOKEN_COLORS[item.symbol] || '#9ab0d4';
+    const fmt = item.price < 0.0001
+      ? item.price.toExponential(2)
+      : item.price < 1
+      ? item.price.toFixed(6)
+      : item.price.toFixed(4);
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 7,
+        padding: '0 28px', flexShrink: 0, whiteSpace: 'nowrap',
+      }}>
+        {/* Color dot */}
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 5px ${color}99` }} />
+        {/* Symbol */}
+        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 12, color: '#e8f0ff' }}>
+          {item.symbol}
+        </span>
+        {/* Price */}
+        <span style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 12, color }}>
+          {fmt}
+        </span>
+        <span style={{ fontSize: 11, color: '#4e6490', fontWeight: 500 }}>{NATIVE_SYMBOL}</span>
+        {/* Divider */}
+        <span style={{ width: 1, height: 12, background: 'rgba(30,46,74,0.8)', marginLeft: 4, flexShrink: 0 }} />
+      </span>
+    );
+  };
+
+  return (
+    <div style={{
+      borderBottom: '1px solid rgba(30,46,74,0.4)',
+      background: 'rgba(4,6,12,0.8)',
+      height: 34,
+      display: 'flex',
+      alignItems: 'center',
+      overflow: 'hidden',
+      position: 'relative',
+    }}>
+      {/* CSS for animation — two identical copies, shift by exactly 50% */}
+      <style>{`
+        @keyframes scroll-ticker {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .ticker-inner {
+          display: inline-flex;
+          align-items: center;
+          animation: scroll-ticker ${speed}s linear infinite;
+          will-change: transform;
+        }
+        .ticker-inner:hover { animation-play-state: paused; }
+      `}</style>
+
+      {/* LIVE badge — fixed on left */}
+      <div style={{
+        position: 'absolute', left: 0, top: 0, bottom: 0, zIndex: 2,
+        display: 'flex', alignItems: 'center',
+        padding: '0 12px',
+        background: 'linear-gradient(90deg, rgba(4,6,12,1) 60%, transparent)',
+        pointerEvents: 'none',
+      }}>
+        <span style={{
+          fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 9,
+          color: '#10b981', letterSpacing: '0.12em',
+          background: 'rgba(16,185,129,0.12)',
+          border: '1px solid rgba(16,185,129,0.3)',
+          borderRadius: 4, padding: '2px 6px',
+          display: 'flex', alignItems: 'center', gap: 4,
+        }}>
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
+          LIVE
+        </span>
+      </div>
+
+      {/* Right fade */}
+      <div style={{
+        position: 'absolute', right: 0, top: 0, bottom: 0, width: 60, zIndex: 2,
+        background: 'linear-gradient(270deg, rgba(4,6,12,1) 30%, transparent)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Scrolling track — two identical halves for seamless loop */}
+      <div className="ticker-inner" style={{ paddingLeft: 80 }}>
+        {/* First copy */}
+        {prices.map((item, i) => <Item key={`a-${i}`} item={item} />)}
+        {/* Second copy — identical, seamless loop */}
+        {prices.map((item, i) => <Item key={`b-${i}`} item={item} />)}
+      </div>
+    </div>
+  );
+}

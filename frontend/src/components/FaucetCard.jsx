@@ -3,91 +3,96 @@ import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import { TOKENS } from '../utils/addresses';
 import { ERC20_ABI } from '../utils/abis';
+import { TokenAvatar } from './TokenSelect';
 
 export default function FaucetCard({ wallet }) {
   const { account, signer, connect } = wallet;
-  const [isLoading, setIsLoading] = useState({});
+  const [loading, setLoading] = useState({});
 
-  // Only mock tokens expose faucet(); skip native and WPOT
-  const mintableTokens = TOKENS.filter(
-    (t) => !t.isNative && t.mintable && t.address !== ethers.ZeroAddress
-  );
+  const mintableTokens = TOKENS.filter(t => !t.isNative && t.mintable && t.address !== ethers.ZeroAddress);
 
   const handleMint = async (token) => {
     if (!signer || !account) return;
-    setIsLoading((prev) => ({ ...prev, [token.symbol]: true }));
-    const toastId = toast.loading(`Minting ${token.symbol}...`);
+    setLoading(p => ({ ...p, [token.symbol]: true }));
+    const id = toast.loading(`Minting ${token.symbol}…`);
     try {
       const contract = new ethers.Contract(token.address, ERC20_ABI, signer);
-      const amount =
-        token.decimals === 6
-          ? ethers.parseUnits('10000', 6)
-          : token.decimals === 8
-          ? ethers.parseUnits('1', 8)
-          : ethers.parseEther('10000');
+      const amount = token.decimals === 6 ? ethers.parseUnits('10000', 6)
+        : token.decimals === 8 ? ethers.parseUnits('1', 8)
+        : ethers.parseEther('10000');
       const tx = await contract.faucet(account, amount);
       await tx.wait();
-      const displayAmount = token.decimals === 8 ? '1' : '10,000';
-      toast.success(`Minted ${displayAmount} ${token.symbol}!`, { id: toastId });
+      const display = token.decimals === 8 ? '1' : '10,000';
+      toast.success(`Minted ${display} ${token.symbol}!`, { id });
     } catch (err) {
-      console.error(err);
-      toast.error(err.reason || 'Mint failed', { id: toastId });
+      toast.error(err.reason || 'Mint failed', { id });
     } finally {
-      setIsLoading((prev) => ({ ...prev, [token.symbol]: false }));
+      setLoading(p => ({ ...p, [token.symbol]: false }));
     }
   };
 
   return (
-    <div className="bg-portal-card border border-portal-border rounded-3xl p-5 glow-box">
-      <h2 className="text-lg font-bold text-white mb-1">Testnet Faucet</h2>
-      <p className="text-xs text-portal-muted mb-4">
-        Mint test tokens to try PortalSwap. These tokens have no real value.
-      </p>
+    <div className="glass-card rounded-3xl p-5">
+      <div className="mb-5">
+        <h2 style={{ fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 20, color: '#e8f0ff', marginBottom: 4 }}>
+          Testnet Faucet
+        </h2>
+        <p className="text-sm text-portal-muted">Mint free test tokens to try PortalSwap.</p>
+      </div>
 
       {!account ? (
-        <button
-          onClick={connect}
-          className="w-full py-4 rounded-2xl text-base font-bold bg-gradient-to-r from-portal-primary to-portal-secondary text-white hover:shadow-lg hover:shadow-portal-primary/25 transition-all"
-        >
+        <button onClick={connect}
+          className="btn-primary w-full py-4 rounded-2xl font-semibold text-white"
+          style={{ fontFamily: 'Space Grotesk', fontSize: 15 }}>
           Connect Wallet
         </button>
       ) : (
         <div className="space-y-2">
-          {mintableTokens.map((token) => (
-            <div
-              key={token.symbol}
-              className="flex items-center justify-between p-3 bg-portal-surface rounded-2xl"
-            >
+          {mintableTokens.map(token => (
+            <div key={token.symbol} className="flex items-center justify-between p-4 rounded-2xl transition"
+              style={{ background: 'rgba(7,9,15,0.5)', border: '1px solid rgba(30,46,74,0.6)' }}>
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{token.logo}</span>
+                <TokenAvatar token={token} size={40} />
                 <div>
-                  <p className="text-sm font-semibold text-white">{token.symbol}</p>
+                  <p style={{ fontFamily: 'Space Grotesk', fontWeight: 600, fontSize: 15, color: '#e8f0ff' }}>
+                    {token.symbol}
+                  </p>
                   <p className="text-xs text-portal-muted">{token.name}</p>
                 </div>
               </div>
-              <button
-                onClick={() => handleMint(token)}
-                disabled={isLoading[token.symbol]}
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-portal-primary/20 text-portal-primary hover:bg-portal-primary/30 transition disabled:opacity-50"
-              >
-                {isLoading[token.symbol] ? 'Minting...' : 'Mint'}
-              </button>
+              <div className="text-right">
+                <p className="text-xs text-portal-muted mb-1.5">
+                  {token.decimals === 8 ? '1 token' : '10,000 tokens'}
+                </p>
+                <button onClick={() => handleMint(token)} disabled={loading[token.symbol]}
+                  className="px-4 py-1.5 rounded-xl text-sm font-semibold transition disabled:opacity-50"
+                  style={{
+                    fontFamily: 'Space Grotesk',
+                    background: 'rgba(61,126,255,0.15)',
+                    color: '#3d7eff',
+                    border: '1px solid rgba(61,126,255,0.3)',
+                  }}
+                  onMouseEnter={e => { if (!loading[token.symbol]) e.currentTarget.style.background='rgba(61,126,255,0.25)'; }}
+                  onMouseLeave={e => { if (!loading[token.symbol]) e.currentTarget.style.background='rgba(61,126,255,0.15)'; }}>
+                  {loading[token.symbol] ? 'Minting…' : 'Mint'}
+                </button>
+              </div>
             </div>
           ))}
 
-          <div className="mt-4 p-3 bg-portal-surface/50 rounded-xl">
-            <p className="text-xs text-portal-muted">
-              Need native tPOTv3 for gas? Visit the{' '}
-              <a
-                href="https://discord.gg/portaldot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-portal-primary hover:text-portal-accent transition underline"
-              >
-                Portaldot Discord
-              </a>{' '}
-              and request from the faucet channel.
-            </p>
+          <div className="mt-4 p-4 rounded-2xl"
+            style={{ background: 'rgba(61,126,255,0.05)', border: '1px solid rgba(61,126,255,0.15)' }}>
+            <div className="flex items-start gap-3">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3d7eff" strokeWidth="2" className="mt-0.5 flex-shrink-0">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-xs text-portal-muted">
+                Need native tPOTv3 for gas? Visit the{' '}
+                <a href="https://discord.gg/portaldot" target="_blank" rel="noopener noreferrer"
+                  className="text-portal-primary hover:underline">Portaldot Discord</a>{' '}
+                and request tokens from the faucet channel.
+              </p>
+            </div>
           </div>
         </div>
       )}
