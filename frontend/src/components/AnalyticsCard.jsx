@@ -71,37 +71,94 @@ export default function AnalyticsCard({ wallet }) {
   useEffect(() => {
     if (!selectedPool || !chartRef.current) return;
     let disposed = false, resizeHandler = null, localChart = null;
-    import('lightweight-charts').then(({ createChart }) => {
-      if (disposed || !chartRef.current) return;
-      localChart = createChart(chartRef.current, {
-        width: chartRef.current.clientWidth, height: 240,
-        watermark: { visible: false }, attributionLogo: false,
-        layout: { background: { color: 'transparent' }, textColor: 'var(--text-secondary)', fontSize: 11 },
-        grid: { vertLines: { color: 'var(--border-secondary)' }, horzLines: { color: 'var(--border-secondary)' } },
-        timeScale: { borderColor: 'var(--border-primary)', timeVisible: true },
-        rightPriceScale: { borderColor: 'var(--border-primary)' },
-        crosshair: { vertLine: { color: 'rgba(61,126,255,0.5)' }, horzLine: { color: 'rgba(61,126,255,0.5)' } },
-      });
-      const r0 = parseFloat(selectedPool.reserve0), r1 = parseFloat(selectedPool.reserve1);
-      const price = r0 > 0 && r1 > 0 ? r1 / r0 : 1;
-      const now = Math.floor(Date.now() / 1000);
-      const data = [];
-      let p = price * 0.85;
-      for (let i = 96; i >= 0; i--) {
-        p *= 1 + (Math.random() - 0.48) * 0.02;
-        data.push({ time: now - i * 900, value: p });
+
+    async function buildAndMount() {
+      // Fetch real Sync event history from chain
+      let priceData = [];
+      try {
+        const provider = wallet.signer?.provider || new ethers.JsonRpcProvider(RPC_URL);
+        const pair = new ethers.Contract(selectedPool.address, PAIR_ABI, provider);
+        const currentBlock = await provider.getBlockNumber();
+        // Look back up to 10 000 blocks (~last few hours on fast chains)
+        const fromBlock = Math.max(0, currentBlock - 10000);
+        const syncEvents = await pair.queryFilter(pair.filters.Sync(), fromBlock, currentBlock);
+        if (syncEvents.length > 1) {
+          const step = Math.max(1, Math.floor(syncEvents.length / 120));
+          for (let i = 0; i < syncEvents.length; i += step) {
+            const ev = syncEvents[i];
+            const r0 = parseFloat(ethers.formatUnits(ev.args[0], selectedPool.token0.decimals ?? 18));
+            const r1 = parseFloat(ethers.formatUnits(ev.args[1], selectedPool.token1.decimals ?? 18));
+            if (r0 > 0 && r1 > 0) {
+              // Use block number as time proxy (lightweight-charts needs monotone int seconds)
+              priceData.push({ time: ev.blockNumber, value: r1 / r0 });
+            }
+          }
+          // Deduplicate by time (block number), keep last per block
+          const byTime = {};
+          for (const pt of priceData) byTime[pt.time] = pt.value;
+          priceData = Object.entries(byTime)
+            .sort((a, b) => Number(a[0]) - Number(b[0]))
+            .map(([t, v]) => ({ time: Number(t), value: v }));
+        }
+      } catch (e) {
+        console.warn('AnalyticsCard: could not fetch Sync history', e);
       }
-      data[data.length - 1].value = price;
-      const series = localChart.addAreaSeries({
-        lineColor: 'var(--accent-blue)', topColor: 'rgba(61,126,255,0.25)',
-        bottomColor: 'rgba(61,126,255,0.0)', lineWidth: 2,
+
+      // Fall back to single current-price point if no history
+      if (priceData.length < 2) {
+        const r0 = parseFloat(selectedPool.reserve0), r1 = parseFloat(selectedPool.reserve1);
+        const price = r0 > 0 && r1 > 0 ? r1 / r0 : 1;
+        const now = Math.floor(Date.now() / 1000);
+        priceData = [{ time: now - 1, value: price }, { time: now, value: price }];
+      }
+
+      if (disposed || !chartRef.current) return;
+
+      const { createChart } = await import('lightweight-charts');
+      if (disposed || !chartRef.current) return;
+
+      // IMPORTANT: lightweight-charts v4 parses every color internally.
+      // CSS variables (var(--...)) throw "Cannot parse color" and crash the chart.
+      // Always pass literal hex / rgba() values here.
+      localChart = createChart(chartRef.current, {
+        width: chartRef.current.clientWidth,
+        height: 240,
+        watermark: { visible: false },
+        attributionLogo: false,
+        layout: {
+          background: { color: '#00000000' }, // fully transparent via 8-digit hex
+          textColor: '#9ab0d4',               // --text-secondary
+          fontSize: 11,
+        },
+        grid: {
+          vertLines: { color: 'rgba(30,46,74,0.6)' },   // --border-secondary
+          horzLines: { color: 'rgba(30,46,74,0.6)' },
+        },
+        timeScale: { borderColor: 'rgba(30,46,74,0.8)', timeVisible: false },
+        rightPriceScale: { borderColor: 'rgba(30,46,74,0.8)' },
+        crosshair: {
+          vertLine: { color: 'rgba(61,126,255,0.5)' },
+          horzLine: { color: 'rgba(61,126,255,0.5)' },
+        },
       });
-      series.setData(data);
+
+      const series = localChart.addAreaSeries({
+        lineColor: '#3d7eff',                   // --accent-blue
+        topColor: 'rgba(61,126,255,0.25)',
+        bottomColor: 'rgba(61,126,255,0.0)',
+        lineWidth: 2,
+      });
+      series.setData(priceData);
       localChart.timeScale().fitContent();
       chartInstance.current = localChart;
-      resizeHandler = () => { if (chartRef.current) localChart.applyOptions({ width: chartRef.current.clientWidth }); };
+      resizeHandler = () => {
+        if (chartRef.current && localChart) localChart.applyOptions({ width: chartRef.current.clientWidth });
+      };
       window.addEventListener('resize', resizeHandler);
-    });
+    }
+
+    buildAndMount();
+
     return () => {
       disposed = true;
       if (resizeHandler) window.removeEventListener('resize', resizeHandler);
@@ -141,7 +198,7 @@ export default function AnalyticsCard({ wallet }) {
           )}
         </div>
         {selectedPool ? (
-          <div ref={chartRef} style={{ borderRadius: 12, overflow: 'hidden' }} />
+          <div ref={chartRef} style={{ borderRadius: 12, overflow: 'hidden', height: 240 }} />
         ) : (
           <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '48px 0', fontSize: 14 }}>
             No pools found. Add liquidity to see charts.
