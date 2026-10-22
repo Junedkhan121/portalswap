@@ -258,9 +258,10 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
       setConfetti(true);
       // Save to tx history
       const entry = { type: 'add', symbolA: tokenA.symbol, symbolB: tokenB.symbol, amountA, amountB, lpReceived, time: Date.now(), hash: receipt.hash };
-      const hist = JSON.parse(sessionStorage.getItem('ps_history') || '[]');
+      const key = `ps_history_\${account?.toLowerCase() || 'anon'}`;
+      const hist = JSON.parse(localStorage.getItem(key) || '[]');
       hist.unshift(entry);
-      sessionStorage.setItem('ps_history', JSON.stringify(hist.slice(0, 30)));
+      localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
       onLiquiditySuccess?.(entry);
       setAmountA('');
       setAmountB('');
@@ -302,9 +303,10 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
       toast.success('Liquidity removed!', { id: toastId });
       // Save to tx history
       const entry = { type: 'remove', symbolA: tokenA.symbol, symbolB: tokenB.symbol, lpAmount: removeAmount, time: Date.now(), hash: receipt.hash };
-      const hist = JSON.parse(sessionStorage.getItem('ps_history') || '[]');
+      const key = `ps_history_\${account?.toLowerCase() || 'anon'}`;
+      const hist = JSON.parse(localStorage.getItem(key) || '[]');
       hist.unshift(entry);
-      sessionStorage.setItem('ps_history', JSON.stringify(hist.slice(0, 30)));
+      localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
       onLiquiditySuccess?.(entry);
       setRemoveAmount('');
       fetchPairInfo();

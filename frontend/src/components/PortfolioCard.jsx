@@ -23,18 +23,23 @@ export default function PortfolioCard({ wallet, swapEvents }) {
   const [lpPositions, setLpPositions] = useState([]);
   const [tab, setTab]           = useState('portfolio');
 
-  // Load tx history from sessionStorage
+  // Load tx history from localStorage, keyed by wallet so history persists across sessions
   useEffect(() => {
-    const load = () => setHistory(JSON.parse(sessionStorage.getItem('ps_history') || '[]'));
+    const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
+    const load = () => setHistory(JSON.parse(localStorage.getItem(key) || '[]'));
     load();
-    window.addEventListener('storage', load);
-    return () => window.removeEventListener('storage', load);
-  }, [swapEvents]);
+    const onStorage = (e) => { if (e.key === key) load(); };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [account, swapEvents]);
 
   // Refresh when a new swap fires
   useEffect(() => {
-    if (swapEvents) setHistory(JSON.parse(sessionStorage.getItem('ps_history') || '[]'));
-  }, [swapEvents]);
+    if (swapEvents) {
+      const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
+      setHistory(JSON.parse(localStorage.getItem(key) || '[]'));
+    }
+  }, [swapEvents, account]);
 
   const fetchBalances = useCallback(async () => {
     if (!account) return;
