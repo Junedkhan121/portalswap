@@ -17,6 +17,8 @@ export const ADDRESSES = {
   Router: "0xc17510Df29ae5E4C6C2A46CCB03197edd0963f2B",
   // Deployed separately — run: npx hardhat run scripts/deploy-faucet.js --network portaldotTestnet
   tPotFaucet: "0x2A9DFCC235d7169a9C0817eE0e27e51A6df95be0",
+  // Deployed separately — run: npx hardhat run scripts/deploy-staking.js --network portaldotTestnet
+  tPotStaking: "0xC3A38DEb577a345900B7F2d903faDC2E4328D831",
 };
 
 // Test tokens (deployed alongside core contracts)

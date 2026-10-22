@@ -66,3 +66,13 @@ export const TPOT_FAUCET_ABI = [
   "event Claimed(address indexed recipient, uint256 amount)",
   "event Donated(address indexed donor, uint256 amount)",
 ];
+
+export const STAKING_ABI = [
+  "function stake() external payable",
+  "function withdraw(uint256 amount) external",
+  "function totalStaked() external view returns (uint256)",
+  "function stakedBalance(address) external view returns (uint256)",
+  "function contractBalance() external view returns (uint256)",
+  "event Staked(address indexed user, uint256 amount, uint256 newTotal)",
+  "event Withdrawn(address indexed user, uint256 amount, uint256 newTotal)",
+];

@@ -6,6 +6,7 @@ const SECTIONS = [
   { id: 'how',       label: 'How it works', icon: '⚙️' },
   { id: 'start',     label: 'Getting started', icon: '🚀' },
   { id: 'faucet',    label: 'Faucet', icon: '⛽' },
+  { id: 'staking',   label: 'Staking', icon: '⚡' },
   { id: 'swap',      label: 'Swapping tokens', icon: '🔄' },
   { id: 'liquidity', label: 'Adding liquidity', icon: '💧' },
   { id: 'fees',      label: 'Fees & rewards', icon: '💰' },
@@ -341,6 +342,62 @@ export default function DocsCard() {
             </div>
           </section>
 
+          {/* Staking */}
+          <section id="doc-staking" style={{ marginBottom: 48 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)', margin: 0 }}>
+                Staking
+              </h2>
+              <Badge color="var(--accent-blue)">Live</Badge>
+            </div>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 16 }}>
+              The <strong style={{ color: 'var(--text-primary)' }}>Stake</strong> tab lets you lock native tPOTv3 into the staking contract and track your position on-chain.
+              Because tPOTv3 is the native gas token (not an ERC-20), staking requires{' '}
+              <strong style={{ color: 'var(--text-primary)' }}>no approval step</strong> — you just send tPOTv3 directly with the transaction.
+            </p>
+
+            {/* Stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 20 }}>
+              {[
+                { label: 'Stake token', value: 'tPOTv3', note: 'Native gas token' },
+                { label: 'Approval', value: 'None', note: 'No ERC-20 approve' },
+                { label: 'Rewards', value: 'v2', note: 'Planned for next phase' },
+              ].map(s => (
+                <div key={s.label} style={{ padding: 16, borderRadius: 14, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)', textAlign: 'center' }}>
+                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 18, color: 'var(--accent-blue)', marginBottom: 4 }}>{s.value}</p>
+                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 12, color: 'var(--text-primary)', marginBottom: 4 }}>{s.label}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.note}</p>
+                </div>
+              ))}
+            </div>
+
+            <Step n="1" title="Open the Stake tab">
+              Click <strong style={{ color: 'var(--text-primary)' }}>Stake</strong> in the navigation bar.
+              You will see your current staked balance and the total tPOTv3 staked across all users.
+            </Step>
+            <Step n="2" title="Enter an amount and stake">
+              Type how much tPOTv3 you want to stake, or click{' '}
+              <strong style={{ color: 'var(--accent-blue)' }}>Balance</strong> to fill your full wallet balance.
+              Click <strong style={{ color: 'var(--accent-blue)' }}>Stake tPOTv3</strong> and confirm in your wallet.
+              One transaction, no prior approval.
+            </Step>
+            <Step n="3" title="Unstake any time">
+              Switch to the <strong style={{ color: 'var(--text-primary)' }}>Unstake</strong> tab, choose an amount
+              (or use the 25 / 50 / 75 / 100 % shortcuts), and click Unstake.
+              Your tPOTv3 returns to your wallet in the same transaction.
+            </Step>
+
+            {/* Contract callout */}
+            <div style={{ padding: '10px 16px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid var(--border-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-primary)', fontWeight: 600 }}>tPotStaking contract</span>
+              <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--accent-blue)', cursor: 'pointer', userSelect: 'all' }}
+                onClick={() => navigator.clipboard.writeText(ADDRESSES.tPotStaking)}
+                title="Click to copy">
+                {ADDRESSES.tPotStaking}
+              </span>
+            </div>
+          </section>
+
           {/* Swapping */}
           <section id="doc-swap" style={{ marginBottom: 48 }}>
             <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)', marginBottom: 16 }}>
@@ -425,6 +482,7 @@ export default function DocsCard() {
               <ContractRow label="Factory"      address={ADDRESSES.Factory} />
               <ContractRow label="Router"       address={ADDRESSES.Router} />
               <ContractRow label="tPotFaucet"   address={ADDRESSES.tPotFaucet} />
+              <ContractRow label="tPotStaking"  address={ADDRESSES.tPotStaking} />
               {TOKENS.filter(t => !t.isNative && t.symbol !== 'WPOT').map(t => (
                 <ContractRow key={t.symbol} label={t.symbol} address={t.address} />
               ))}
@@ -437,7 +495,7 @@ export default function DocsCard() {
               Roadmap
             </h2>
             {[
-              { phase: 'Phase 1', status: 'done',    title: 'Testnet launch',         items: ['Core AMM contracts (Factory, Router, Pair)', 'WPOT wrapper', 'React frontend with Swap, Liquidity, Analytics, Faucet', 'Deployment on Portaldot V3 Testnet'] },
+              { phase: 'Phase 1', status: 'done',    title: 'Testnet launch',         items: ['Core AMM contracts (Factory, Router, Pair)', 'WPOT wrapper', 'React frontend with Swap, Liquidity, Analytics, Faucet', 'Native tPOTv3 faucet contract with 72h cooldown', 'Native tPOTv3 staking contract', 'Deployment on Portaldot V3 Testnet'] },
               { phase: 'Phase 2', status: 'active',  title: 'DeFi primitives',         items: ['Multi-hop routing (A→B→C swaps)', 'Price oracle integration (TWAP)', 'LP staking & farming rewards', 'Token pair creation UI'] },
               { phase: 'Phase 3', status: 'planned', title: 'Governance & mainnet',    items: ['SWAP governance token', 'On-chain voting for fee parameters', 'Mainnet deployment when available', 'Audit by third-party security firm'] },
               { phase: 'Phase 4', status: 'planned', title: 'Advanced features',       items: ['Limit orders via keeper bots', 'Concentrated liquidity (V3-style)', 'Cross-chain bridge — bridge tokens between Portaldot and other EVM chains', 'Mobile-first PWA'] },
