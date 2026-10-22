@@ -129,20 +129,8 @@ html, body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Orb background */
-body::before {
-  content: '';
-  position: fixed;
-  top: -20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 800px;
-  height: 500px;
-  background: var(--orb-bg);
-  pointer-events: none;
-  z-index: 0;
-  transition: background 0.3s ease;
-}
+/* Orb background — replaced by FloatingOrbs React component */
+body::before { display: none; }
 
 body::after {
   content: '';
@@ -188,6 +176,17 @@ body::after {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
+}
+
+@keyframes orbFloat {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(14px, -22px) scale(1.05); }
+  66%  { transform: translate(-10px, 16px) scale(0.96); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb { animation: none !important; }
 }
 
 .animate-fade-in { animation: fadeIn 0.3s ease-out; }
