@@ -9,6 +9,14 @@ export default function FaucetCard({ wallet }) {
   const { account, signer, connect } = wallet;
   const [loading, setLoading] = useState({});
 
+  // Mint amounts per token — display string and on-chain amount string
+  const MINT_AMOUNTS = {
+    pUSDT: { display: '10',   amount: '10'   },
+    pDAI:  { display: '10',   amount: '10'   },
+    pWBTC: { display: '0.01', amount: '0.01' },
+    pLINK: { display: '0.5',  amount: '0.5'  },
+  };
+
   const mintableTokens = TOKENS.filter(t => !t.isNative && t.mintable && t.address !== ethers.ZeroAddress);
 
   const handleMint = async (token) => {
@@ -17,13 +25,11 @@ export default function FaucetCard({ wallet }) {
     const id = toast.loading(`Minting ${token.symbol}…`);
     try {
       const contract = new ethers.Contract(token.address, ERC20_ABI, signer);
-      const amount = token.decimals === 6 ? ethers.parseUnits('10000', 6)
-        : token.decimals === 8 ? ethers.parseUnits('1', 8)
-        : ethers.parseEther('10000');
+      const cfg = MINT_AMOUNTS[token.symbol] || { amount: '10', display: '10' };
+      const amount = ethers.parseUnits(cfg.amount, token.decimals);
       const tx = await contract.faucet(account, amount);
       await tx.wait();
-      const display = token.decimals === 8 ? '1' : '10,000';
-      toast.success(`Minted ${display} ${token.symbol}!`, { id });
+      toast.success(`Minted ${cfg.display} ${token.symbol}!`, { id });
     } catch (err) {
       toast.error(err.reason || 'Mint failed', { id });
     } finally {
@@ -74,7 +80,7 @@ export default function FaucetCard({ wallet }) {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
-                  {token.decimals === 8 ? '1 token' : '10,000 tokens'}
+                  {(MINT_AMOUNTS[token.symbol]?.display ?? '10')} tokens
                 </p>
                 <button onClick={() => handleMint(token)} disabled={loading[token.symbol]}
                   style={{
