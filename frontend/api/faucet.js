@@ -36,7 +36,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const provider    = new ethers.JsonRpcProvider(RPC_URL);
+    // Lock network to avoid ethers v6 making extra fee-detection RPC calls
+    // that fail on Portaldot (Paris EVM, no EIP-1559).
+    const network   = new ethers.Network('portaldotV3', 420420777);
+    const provider  = new ethers.JsonRpcProvider(RPC_URL, network, { staticNetwork: network });
     const relayWallet = new ethers.Wallet(relayKey, provider);
     const faucet      = new ethers.Contract(FAUCET_ADDR, FAUCET_ABI, relayWallet);
 
@@ -64,8 +67,10 @@ export default async function handler(req, res) {
       return res.status(503).json({ error: 'Relay wallet has no gas — please top it up' });
     }
 
-    // Send tx — do NOT await tx.wait() (Vercel 10 s timeout would be exceeded)
+    // Send tx — type:0 forces legacy transaction (no EIP-1559).
+    // Portaldot V3 is Paris EVM — it does not support maxFeePerGas.
     const tx = await faucet.claim(recipient, {
+      type:     0,
       gasPrice: 100000,
       gasLimit: 120000,
     });
@@ -87,6 +92,7 @@ export default async function handler(req, res) {
               : raw.includes('empty')     ? 'Faucet pool is empty'
               : raw.includes('low gas')   ? 'Relay wallet needs more tPOTv3 for gas'
               : raw.includes('nonce')     ? 'Nonce conflict — please retry in a moment'
+              : raw.includes('coalesce')  ? 'RPC fee detection failed — retrying with legacy tx format'
               : raw.includes('TIMEOUT') || raw.includes('timeout') ? 'RPC timeout — please retry'
               : `Relay error: ${raw.slice(0, 120)}`;
 
