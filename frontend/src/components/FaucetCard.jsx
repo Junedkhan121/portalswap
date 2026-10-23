@@ -161,6 +161,10 @@ export default function FaucetCard({ wallet }) {
     }
   };
 
+  // Set true while Portaldot RPC bans the relay wallet address.
+  // Hides the gasless relay and promotes the wallet-direct claim instead.
+  const RELAY_PAUSED = true;
+
   /* ── Render ──────────────────────────────────────────────────── */
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -243,8 +247,23 @@ export default function FaucetCard({ wallet }) {
               </div>
             )}
 
-            {/* ── Primary path: relay (no wallet needed) ── */}
-            {cooldownSecs === 0 && (
+            {/* ── Relay notice when paused ── */}
+            {RELAY_PAUSED && (
+              <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(245,172,55,0.08)', border: '1px solid rgba(245,172,55,0.3)', marginBottom: 12, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>⚠️</span>
+                <div>
+                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--accent-yellow)', margin: '0 0 3px' }}>
+                    Gasless relay temporarily suspended
+                  </p>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0, lineHeight: 1.55 }}>
+                    The Portaldot RPC node has temporarily banned our relay address. Use the wallet claim below instead — you only need a tiny amount of tPOTv3 for gas.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ── Primary path: relay (no wallet needed) — hidden when paused ── */}
+            {!RELAY_PAUSED && cooldownSecs === 0 && (
               <div style={{ marginBottom: 12 }}>
                 <button
                   onClick={handleRelayClaim}
@@ -279,27 +298,53 @@ export default function FaucetCard({ wallet }) {
               </div>
             )}
 
-            {/* ── Secondary path: direct wallet (if connected) ── */}
+            {/* ── Wallet claim — prominent when relay paused, collapsible otherwise ── */}
             {account && cooldownSecs === 0 && (
-              <details style={{ marginBottom: 12 }}>
-                <summary style={{ fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                  Already have tPOTv3? Claim directly with your wallet
-                </summary>
-                <button
-                  onClick={handleClaim}
-                  disabled={claiming || !eligible}
-                  style={{
-                    width: '100%', marginTop: 8, padding: '11px 0', borderRadius: 14,
-                    fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-primary)',
-                    background: 'rgba(61,126,255,0.12)', color: 'var(--accent-blue)',
-                    border: '1px solid rgba(61,126,255,0.3)',
-                    cursor: claiming || !eligible ? 'not-allowed' : 'pointer',
-                    opacity: claiming ? 0.6 : 1, transition: 'all 0.15s',
-                  }}>
-                  {claiming ? 'Claiming…' : 'Claim with my wallet (you pay gas)'}
-                </button>
-              </details>
+              RELAY_PAUSED ? (
+                <div style={{ marginBottom: 12 }}>
+                  <button
+                    onClick={handleClaim}
+                    disabled={claiming || !eligible}
+                    style={{
+                      width: '100%', padding: '15px 0', borderRadius: 18,
+                      fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-primary)',
+                      background: eligible ? 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))' : 'var(--bg-menu-item)',
+                      color: eligible ? '#fff' : 'var(--text-muted)',
+                      border: 'none', cursor: claiming || !eligible ? 'not-allowed' : 'pointer',
+                      opacity: claiming ? 0.6 : 1, transition: 'all 0.2s',
+                    }}>
+                    {claiming ? (
+                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/><path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                        Claiming…
+                      </span>
+                    ) : 'Claim 1 tPOTv3 (wallet pays gas)'}
+                  </button>
+                  <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 6, marginBottom: 0 }}>
+                    Your connected wallet signs the transaction and pays a tiny gas fee.
+                  </p>
+                </div>
+              ) : (
+                <details style={{ marginBottom: 12 }}>
+                  <summary style={{ fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    Already have tPOTv3? Claim directly with your wallet
+                  </summary>
+                  <button
+                    onClick={handleClaim}
+                    disabled={claiming || !eligible}
+                    style={{
+                      width: '100%', marginTop: 8, padding: '11px 0', borderRadius: 14,
+                      fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-primary)',
+                      background: 'rgba(61,126,255,0.12)', color: 'var(--accent-blue)',
+                      border: '1px solid rgba(61,126,255,0.3)',
+                      cursor: claiming || !eligible ? 'not-allowed' : 'pointer',
+                      opacity: claiming ? 0.6 : 1, transition: 'all 0.15s',
+                    }}>
+                    {claiming ? 'Claiming…' : 'Claim with my wallet (you pay gas)'}
+                  </button>
+                </details>
+              )
             )}
 
 
