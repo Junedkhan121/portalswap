@@ -28,9 +28,10 @@ export default function PortfolioCard({ wallet, swapEvents }) {
     const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
     const load = () => setHistory(JSON.parse(localStorage.getItem(key) || '[]'));
     load();
-    const onStorage = (e) => { if (e.key === key) load(); };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    // 'storage' only fires from OTHER tabs. Use custom event for same-tab updates.
+    const onUpdate = (e) => { if (!e.detail || e.detail.key === key) load(); };
+    window.addEventListener('ps_history_update', onUpdate);
+    return () => window.removeEventListener('ps_history_update', onUpdate);
   }, [account, swapEvents]);
 
   // Refresh when a new swap fires

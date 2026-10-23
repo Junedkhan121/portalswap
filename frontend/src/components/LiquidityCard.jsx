@@ -262,6 +262,7 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
       const hist = JSON.parse(localStorage.getItem(key) || '[]');
       hist.unshift(entry);
       localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
+      window.dispatchEvent(new CustomEvent('ps_history_update', { detail: { key } }));
       onLiquiditySuccess?.(entry);
       setAmountA('');
       setAmountB('');
@@ -307,6 +308,7 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
       const hist = JSON.parse(localStorage.getItem(key) || '[]');
       hist.unshift(entry);
       localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
+      window.dispatchEvent(new CustomEvent('ps_history_update', { detail: { key } }));
       onLiquiditySuccess?.(entry);
       setRemoveAmount('');
       fetchPairInfo();
