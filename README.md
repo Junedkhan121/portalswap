@@ -1,171 +1,300 @@
-# PortalSwap — AMM DEX on Portaldot V3.0
+# PortalSwap — AMM DEX on Portaldot V3 Testnet
 
-PortalSwap is a decentralized exchange (DEX) built on the **Portaldot Network V3.0 Testnet** featuring an automated market maker (AMM) based on the constant product formula (x * y = k). It enables permissionless token swaps, liquidity provision, and real-time pool analytics.
+> **Live at [portalswap.live](https://portalswap.live)**
 
-> Built for the **Portaldot Hacker House 2026** — Ecosystem DApps Track
+PortalSwap is a fully on-chain, non-custodial AMM DEX built on the **Portaldot V3 Testnet**. It uses the constant-product formula (x·y = k) for permissionless swaps, LP provisioning, staking, and real-time pool analytics.
+
+> Built for **Portaldot Hacker House 2026** — Ecosystem DApps Track
+
+---
 
 ## Features
 
-- **Token Swap** — Swap between ERC-20 tokens and native tPOTv3 with a 0.3% fee
-- **Liquidity Pools** — Add and remove liquidity to earn trading fees
-- **Price Charts** — Real-time token price visualization using lightweight-charts
-- **Pool Analytics** — View pool reserves, TVL, and all active pairs
-- **Testnet Faucet** — Mint test tokens (pUSDT, pDAI, pWBTC, pLINK) for free
-- **Wallet Support** — MetaMask, OKX Wallet, and any EVM-compatible wallet
-- **Auto Network Switch** — Automatically prompts to add/switch to Portaldot V3 Testnet
+| Tab | What it does |
+|---|---|
+| **Swap** | Swap tPOTv3 ↔ ERC-20 or ERC-20 ↔ ERC-20 with a 0.3% fee and live price-impact preview |
+| **Liquidity** | Add / remove liquidity, see your LP share, earn 0.3% trading fees |
+| **Analytics** | Full-chain price history chart per pool (scans all Sync events from block 0), reserves, TVL |
+| **Portfolio** | Token balances, LP positions, total portfolio value in tPOTv3 |
+| **Tx History** | Real-time log of swaps, liquidity adds/removes, faucet claims — persists per wallet |
+| **Stake** | Stake tPOTv3 to earn staking rewards via the PortalSwapStaking contract |
+| **Faucet** | Mint pUSDT, pDAI, pWBTC, pLINK for free — no gas tricks needed |
+| **Docs** | In-app contract addresses, AMM explainer, and network setup guide |
 
-## Architecture
+---
 
-```
-PortalSwap/
-├── contracts/            # Solidity smart contracts
-│   ├── PortalSwapFactory.sol    # Creates and tracks trading pairs
-│   ├── PortalSwapPair.sol       # Core AMM pair with reserves and swap logic
-│   ├── PortalSwapRouter.sol     # User-facing entry point for swaps & liquidity
-│   ├── PortalSwapLibrary.sol    # Price calculation helpers
-│   ├── PortalSwapERC20.sol      # LP token with EIP-2612 permit
-│   ├── WPOT.sol                 # Wrapped POT (WETH equivalent)
-│   ├── interfaces/              # Contract interfaces
-│   └── tokens/
-│       └── MockERC20.sol        # Test ERC-20 with public faucet
-├── frontend/             # React + Vite frontend
-│   ├── src/
-│   │   ├── components/          # UI components (Swap, Liquidity, Analytics, Faucet)
-│   │   ├── hooks/               # React hooks (useWallet, useContract)
-│   │   └── utils/               # ABIs, addresses, network config
-│   └── ...
-├── scripts/              # deploy.js, seed.js (deployment + demo liquidity)
-├── test/                 # Contract tests
-├── hardhat.config.js     # Hardhat config with Portaldot V3 network
-├── SETUP.md              # Step-by-step guide written for first-time deployers
-└── README.md
-```
+## Deployed Contracts (Portaldot V3 Testnet · chainId 420420777)
 
-> New to Solidity or Hardhat? Follow **[SETUP.md](SETUP.md)** instead of this file — it walks through every command in order, including creating a throwaway deployer wallet.
+| Contract | Address |
+|---|---|
+| **WPOT** (Wrapped POT) | `0xf67cE92096E4E171060B71bF0cca0DA9f9548c03` |
+| **PortalSwapFactory** | `0xC631805C297c4233B33c30aF91245058902C1D18` |
+| **PortalSwapRouter** | `0xc17510Df29ae5E4C6C2A46CCB03197edd0963f2B` |
+| **PortalSwapFaucet** | `0x2A9DFCC235d7169a9C0817eE0e27e51A6df95be0` |
+| **PortalSwapStaking** | `0xC3A38DEb577a345900B7F2d903faDC2E4328D831` |
+
+### Test Tokens
+
+| Symbol | Name | Address | Decimals |
+|---|---|---|---|
+| **pUSDT** | Portal USDT | `0xe0114Adc0a2072B602C645f5a07EeFA1eaDBDbc2` | 6 |
+| **pDAI** | Portal DAI | `0x83DF1D2fD7E110c93234911E1798A6415F536D96` | 18 |
+| **pWBTC** | Portal Wrapped BTC | `0x35fdB379dd79c8D1AbaB5ed65192cfc0F0ec7bb2` | 8 |
+| **pLINK** | Portal LINK | `0xDFCd9E24Bc91b4886CDF773944C2FC311ea9e766` | 18 |
+
+---
+
+## Network
+
+| Property | Value |
+|---|---|
+| Network Name | PortaldotV3 Testnet |
+| RPC URL | `https://test-evm-rpc-v3.portaldot.dev` |
+| Chain ID | `420420777` |
+| Currency Symbol | `tPOTv3` |
+| EVM Version | `paris` (no PUSH0 — WASM EVM) |
+
+The app auto-prompts MetaMask / OKX Wallet to add and switch to this network on first connect.
+
+---
 
 ## Tech Stack
 
-| Layer          | Technology                    |
-| -------------- | ----------------------------- |
-| Smart Contracts| Solidity 0.8.20               |
-| Framework      | Hardhat                       |
-| Frontend       | React 18 + Vite               |
-| Styling        | Tailwind CSS                  |
-| Web3           | ethers.js v6                  |
-| Charts         | lightweight-charts            |
-| Network        | Portaldot V3.0 Testnet (EVM)  |
+| Layer | Technology |
+|---|---|
+| Smart Contracts | Solidity 0.8.20 (evmVersion: paris) |
+| Contract Framework | Hardhat |
+| Frontend | React 18 + Vite |
+| Styling | Tailwind CSS + CSS custom properties |
+| Web3 | ethers.js v6 |
+| Charts | lightweight-charts v4 |
+| Toasts | react-hot-toast |
+| Hosting | Vercel — auto-deploy from `main` branch |
+| Domain | portalswap.live (registered through 2027) |
 
-## Network Details
+---
 
-| Property         | Value                                    |
-| ---------------- | ---------------------------------------- |
-| Network Name     | PortaldotV3 Testnet                      |
-| RPC URL          | https://test-evm-rpc-v3.portaldot.dev    |
-| Chain ID         | 420420777                                |
-| Currency Symbol  | tPOTv3                                   |
-| Block Explorer   | —                                        |
+## Project Structure
 
-## Quick Start
+```
+PortalSwap/
+├── contracts/
+│   ├── PortalSwapFactory.sol       # Pair registry + CREATE2 deployment
+│   ├── PortalSwapPair.sol          # Core AMM (x·y=k, 0.3% fee, LP tokens)
+│   ├── PortalSwapRouter.sol        # User entry-point: swap, addLiquidity, removeLiquidity
+│   ├── PortalSwapLibrary.sol       # getAmountOut / getAmountIn helpers
+│   ├── PortalSwapERC20.sol         # LP token + EIP-2612 permit
+│   ├── WPOT.sol                    # Wrapped native token
+│   ├── PortalSwapStaking.sol       # Single-asset tPOTv3 staking with rewards
+│   ├── PortalSwapFaucet.sol        # Drips test tokens on demand
+│   ├── interfaces/
+│   └── tokens/
+│       └── MockERC20.sol           # Mintable test ERC-20
+├── frontend/
+│   ├── index.html                  # Non-blocking font load, meta/OG tags
+│   ├── vite.config.js              # Vendor chunk splitting, build config
+│   └── src/
+│       ├── App.jsx                 # Tab routing + React.lazy / Suspense
+│       ├── index.css               # Design tokens, responsive breakpoints
+│       ├── components/
+│       │   ├── SwapCard.jsx
+│       │   ├── LiquidityCard.jsx
+│       │   ├── AnalyticsCard.jsx   # Full-chain Sync event scan, price chart
+│       │   ├── PortfolioCard.jsx   # Balances, LP positions, real-time tx history
+│       │   ├── StakeCard.jsx
+│       │   ├── FaucetCard.jsx
+│       │   ├── DocsCard.jsx
+│       │   ├── Header.jsx
+│       │   └── Footer.jsx
+│       ├── hooks/
+│       │   └── useWallet.js
+│       └── utils/
+│           ├── addresses.js        # All contract addresses + token list
+│           └── abis.js
+├── scripts/
+│   ├── deploy.js                   # Deploy WPOT + Factory + Router + test tokens
+│   ├── deploy-faucet.js            # Deploy PortalSwapFaucet separately
+│   ├── deploy-staking.js           # Deploy PortalSwapStaking separately
+│   └── seed.js                     # Seed demo pools with liquidity
+├── test/                           # Hardhat contract tests
+├── hardhat.config.js
+├── SETUP.md                        # Step-by-step first-time deployer guide
+└── README.md
+```
+
+---
+
+## Quick Start — Use the Live App
+
+Just open **[portalswap.live](https://portalswap.live)** in any browser, connect MetaMask or OKX Wallet, and the app will prompt you to add the Portaldot V3 Testnet automatically.
+
+To get test tokens: use the **Faucet** tab inside the app — no Discord or external faucet needed.
+
+---
+
+## Local Development
+
+The contracts are already deployed — you only need to run the frontend locally.
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/Junedkhan121/PortalSwap.git
+cd PortalSwap/frontend
+npm install
+```
+
+### 2. Start dev server
+
+```bash
+npm run dev
+# → http://localhost:3000
+```
+
+### 3. Build for production
+
+```bash
+npm run build
+# Output: frontend/dist/
+```
+
+---
+
+## Re-deploying Contracts (optional)
+
+Only needed if you want a fresh deployment. The live site already has all contracts deployed and pools seeded.
 
 ### Prerequisites
 
-- Node.js >= 18
-- A wallet with testnet tPOTv3 tokens (join [Portaldot Discord](https://discord.gg/portaldot) for faucet)
-
-### 1. Install Dependencies
+- Node.js ≥ 18
+- Deployer wallet funded with tPOTv3 for gas
 
 ```bash
-# Root — smart contracts
+# Install root dependencies
 npm install
 
-# Frontend
-cd frontend && npm install
-```
-
-### 2. Configure Environment
-
-```bash
+# Copy and fill in your deployer private key
 cp .env.example .env
-# Edit .env and add your deployer private key
 ```
 
-### 3. Compile Contracts
+### Deploy core (WPOT + Factory + Router + test tokens)
 
 ```bash
 npx hardhat compile
-```
-
-### 4. Deploy to Portaldot V3 Testnet
-
-```bash
 npx hardhat run scripts/deploy.js --network portaldotTestnet
 ```
 
-This deploys: WPOT, Factory, Router, and 4 test tokens (pUSDT, pDAI, pWBTC, pLINK).
+Paste the printed addresses into `frontend/src/utils/addresses.js`.
 
-Copy the printed addresses into `frontend/src/utils/addresses.js`.
+### Deploy faucet
 
-### 5. Seed Demo Pools (optional but recommended)
+```bash
+npx hardhat run scripts/deploy-faucet.js --network portaldotTestnet
+```
+
+Update `ADDRESSES.tPotFaucet` in `addresses.js`.
+
+### Deploy staking
+
+```bash
+npx hardhat run scripts/deploy-staking.js --network portaldotTestnet
+```
+
+Update `ADDRESSES.tPotStaking` in `addresses.js`.
+
+### Seed demo pools
 
 ```bash
 npx hardhat run scripts/seed.js --network portaldotTestnet
 ```
 
-Creates three pools with liquidity — tPOTv3/pUSDT, tPOTv3/pDAI and pUSDT/pDAI — so the swap UI and analytics charts show real data on first load. Without this the DEX works, but every chart is empty until you add liquidity yourself.
+Creates tPOTv3/pUSDT, tPOTv3/pDAI, and pUSDT/pDAI pools so the analytics chart and swap UI show real data on first load.
 
-### 6. Run the Contract Tests
+### Run contract tests
 
 ```bash
 npm test
 ```
 
-Six tests cover pair creation, liquidity minting, the 0.3% swap fee, liquidity removal, native POT swaps through WPOT, and the k-invariant revert. They run on Hardhat's in-memory network — no testnet funds needed.
+Six tests cover: pair creation, liquidity minting, 0.3% swap fee, liquidity removal, native POT swaps via WPOT, and k-invariant revert. All run on Hardhat's in-memory network — no testnet funds needed.
 
-### 7. Start Frontend
+---
 
-```bash
-cd frontend
-npm run dev
+## How the AMM Works
+
+### Constant Product Formula
+
+```
+x · y = k
 ```
 
-Open http://localhost:3000, connect your wallet, and start swapping!
+When you swap token A for token B, reserves shift so the product stays constant. The 0.3% fee is taken from the input amount before the invariant check, so fees accumulate inside the pool for LPs.
 
-## How It Works
+**Swap output:**
 
-### Constant Product AMM
-
-PortalSwap uses the **x * y = k** invariant. When a user swaps token A for token B, the product of reserves must remain constant (minus the 0.3% fee).
-
-**Swap formula:**
 ```
-amountOut = (amountIn * 997 * reserveOut) / (reserveIn * 1000 + amountIn * 997)
+amountOut = (amountIn × 997 × reserveOut) / (reserveIn × 1000 + amountIn × 997)
 ```
 
 ### Liquidity Provision
 
-Liquidity providers deposit equal value of two tokens and receive LP tokens representing their pool share. They earn 0.3% of all trades proportional to their share.
+Deposit equal value of two tokens → receive LP tokens representing your pool share. Withdraw any time to reclaim tokens plus accrued fees.
 
-### Fee Structure
+### Staking
 
-- **0.3%** trading fee on each swap
-- 100% of fees go to liquidity providers (protocol fee can be enabled)
+Deposit tPOTv3 into `PortalSwapStaking` to earn staking rewards. Withdraw principal + rewards at any time.
 
-## Contract Security
+---
 
-- Reentrancy protection via lock modifier
-- Overflow protection (Solidity 0.8+)
-- CREATE2 deterministic pair addresses
-- EIP-2612 permit for gasless LP token approvals
-- Minimum liquidity lock to prevent first-depositor attack
+## Security
+
+- Reentrancy lock on all state-changing pair functions
+- Solidity 0.8.x built-in overflow/underflow protection
+- CREATE2 deterministic pair addresses (no front-running pair creation)
+- EIP-2612 permit on LP tokens (gasless approvals)
+- Minimum liquidity permanently locked on first deposit (prevents first-depositor attack)
+- EVM version `paris` — no PUSH0 opcode (required for Portaldot WASM-EVM compatibility)
+
+---
+
+## Frontend Performance
+
+- **Lazy loading** — SwapCard is the only eagerly-loaded component; all other tabs load on demand via `React.lazy` + `Suspense`
+- **Vendor chunk splitting** — separate cache chunks for `react`, `ethers`, `lightweight-charts`, `react-hot-toast`
+- **Non-blocking fonts** — Google Fonts loaded with `media="print"` swap pattern; never delays first paint
+- **DNS prefetch** for RPC endpoint on page load
+- **Mobile responsive** — fluid font size, 44 px touch targets, horizontal-scroll tab nav, clamp()-based spacing
+
+---
+
+## Deployment (Vercel)
+
+- Vercel project: `portalswap` → auto-deploys from `main` branch
+- Root Directory in Vercel set to `frontend`
+- `frontend/vercel.json` handles SPA fallback routing
+- Custom domain: `portalswap.live` (DNS A record → Vercel)
+
+To deploy a new version:
+
+```bash
+git add .
+git commit -m "your message"
+git push origin main
+# Vercel picks it up automatically — no manual deploy needed
+```
+
+---
 
 ## Hackathon Submission
 
+**Event:** Portaldot Hacker House 2026
 **Track:** Ecosystem DApps
+**Live URL:** https://portalswap.live
+**Repo:** https://github.com/Junedkhan121/PortalSwap
 
-**Portaldot V3.0 features used:**
-- EVM contract execution
-- ERC-20 token standard
-- Native token wrapping (WPOT)
+Portaldot V3 features used: EVM contract execution, ERC-20 token standard, native token wrapping (WPOT ↔ tPOTv3), on-chain AMM liquidity pools, staking rewards contract.
+
+---
 
 ## License
 
