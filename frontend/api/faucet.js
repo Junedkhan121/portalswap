@@ -36,19 +36,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Lock network to avoid ethers v6 making extra fee-detection RPC calls
-    // that fail on Portaldot (Paris EVM, no EIP-1559).
     const network     = new ethers.Network('portaldotV3', 420420777);
     const provider    = new ethers.JsonRpcProvider(RPC_URL, network, { staticNetwork: network });
-
-    // Override getFeeData so ethers never tries EIP-1559 maxFeePerGas — Portaldot
-    // is a Paris-EVM chain and rejects those fields entirely.
-    provider.getFeeData = async () => ({
-      gasPrice:             100000n,
-      maxFeePerGas:         null,
-      maxPriorityFeePerGas: null,
-    });
-
     const relayWallet = new ethers.Wallet(relayKey, provider);
     const faucet      = new ethers.Contract(FAUCET_ADDR, FAUCET_ABI, relayWallet);
 
@@ -76,18 +65,31 @@ export default async function handler(req, res) {
       return res.status(503).json({ error: 'Relay wallet has no gas — please top it up' });
     }
 
-    // Send tx — type:0 forces legacy transaction (no EIP-1559).
-    // Portaldot V3 is Paris EVM — it does not support maxFeePerGas.
-    const tx = await faucet.claim(recipient, {
-      type:     0,
-      gasPrice: 100000,
-      gasLimit: 120000,
-    });
+    // Build the tx manually to completely bypass ethers v6 fee detection.
+    // ethers v6 calls getFeeData() internally when populating a tx; on Portaldot
+    // (Paris EVM, no EIP-1559) this throws "could not coalesce" before the tx is sent.
+    // Encoding the calldata and signing the raw tx ourselves avoids that code path entirely.
+    const iface = new ethers.Interface(FAUCET_ABI);
+    const data  = iface.encodeFunctionData('claim', [recipient]);
+    const nonce = await provider.getTransactionCount(relayWallet.address);
 
-    // Return hash immediately; chain mines it in the background
+    const rawTx = {
+      to:       FAUCET_ADDR,
+      data,
+      value:    0n,
+      gasPrice: 100000n,
+      gasLimit: 120000n,
+      type:     0,
+      nonce,
+      chainId:  420420777n,
+    };
+
+    const signedTx = await relayWallet.signTransaction(rawTx);
+    const response = await provider.broadcastTransaction(signedTx);
+
     return res.status(200).json({
       success:   true,
-      hash:      tx.hash,
+      hash:      response.hash,
       recipient,
       amount:    '1',
     });
@@ -103,7 +105,7 @@ export default async function handler(req, res) {
               : raw.includes('nonce')     ? 'Nonce conflict — please retry in a moment'
               : raw.includes('coalesce')  ? 'RPC fee detection failed — retrying with legacy tx format'
               : raw.includes('TIMEOUT') || raw.includes('timeout') ? 'RPC timeout — please retry'
-              : `Relay error: ${raw.slice(0, 120)}`;
+              : `Error: ${raw.slice(0, 200)}`;
 
     return res.status(500).json({ error: msg });
   }
