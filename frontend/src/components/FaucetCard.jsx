@@ -253,10 +253,10 @@ export default function FaucetCard({ wallet }) {
                 <span style={{ fontSize: 16, flexShrink: 0 }}>⚠️</span>
                 <div>
                   <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--accent-yellow)', margin: '0 0 3px' }}>
-                    Gasless relay temporarily suspended
+                    Direct claims temporarily paused
                   </p>
                   <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0, lineHeight: 1.55 }}>
-                    The Portaldot RPC node has temporarily banned our relay address. Use the wallet claim below instead — you only need a tiny amount of tPOTv3 for gas.
+                    The Portaldot RPC node has temporarily suspended direct faucet transactions. This is a network-level restriction — not an issue with your wallet. Use the wallet claim below as an alternative. We'll restore the gasless relay as soon as we get more info.
                   </p>
                 </div>
               </div>
