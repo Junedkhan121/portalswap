@@ -28,6 +28,7 @@ export default function AnalyticsCard({ wallet }) {
   const [pools, setPools] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPool, setSelectedPool] = useState(null);
+  const [noHistory, setNoHistory] = useState(false);
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
@@ -69,6 +70,11 @@ export default function AnalyticsCard({ wallet }) {
   }, [wallet.signer]);
 
   useEffect(() => {
+    if (!selectedPool) return;
+    setNoHistory(false); // reset so chartRef div re-mounts before async fetch
+  }, [selectedPool]);
+
+  useEffect(() => {
     if (!selectedPool || !chartRef.current) return;
     let disposed = false, resizeHandler = null, localChart = null;
 
@@ -79,9 +85,14 @@ export default function AnalyticsCard({ wallet }) {
         const provider = wallet.signer?.provider || new ethers.JsonRpcProvider(RPC_URL);
         const pair = new ethers.Contract(selectedPool.address, PAIR_ABI, provider);
         const currentBlock = await provider.getBlockNumber();
-        // Look back up to 10 000 blocks (~last few hours on fast chains)
-        const fromBlock = Math.max(0, currentBlock - 10000);
-        const syncEvents = await pair.queryFilter(pair.filters.Sync(), fromBlock, currentBlock);
+        // Try full chain history first; fall back to recent 10k blocks if RPC rejects wide range
+        let syncEvents;
+        try {
+          syncEvents = await pair.queryFilter(pair.filters.Sync(), 0, currentBlock);
+        } catch {
+          const recentFrom = Math.max(0, currentBlock - 10000);
+          syncEvents = await pair.queryFilter(pair.filters.Sync(), recentFrom, currentBlock);
+        }
         if (syncEvents.length > 1) {
           const step = Math.max(1, Math.floor(syncEvents.length / 120));
           for (let i = 0; i < syncEvents.length; i += step) {
@@ -104,15 +115,13 @@ export default function AnalyticsCard({ wallet }) {
         console.warn('AnalyticsCard: could not fetch Sync history', e);
       }
 
-      // Fall back to single current-price point if no history
+      // If fewer than 2 distinct price points, show placeholder instead of flat line
       if (priceData.length < 2) {
-        const r0 = parseFloat(selectedPool.reserve0), r1 = parseFloat(selectedPool.reserve1);
-        const price = r0 > 0 && r1 > 0 ? r1 / r0 : 1;
-        const now = Math.floor(Date.now() / 1000);
-        priceData = [{ time: now - 1, value: price }, { time: now, value: price }];
+        if (!disposed) setNoHistory(true);
+        return;
       }
-
       if (disposed || !chartRef.current) return;
+      setNoHistory(false);
 
       const { createChart } = await import('lightweight-charts');
       if (disposed || !chartRef.current) return;
@@ -198,7 +207,22 @@ export default function AnalyticsCard({ wallet }) {
           )}
         </div>
         {selectedPool ? (
-          <div ref={chartRef} style={{ borderRadius: 12, overflow: 'hidden', height: 240 }} />
+          <div style={{ position: 'relative', height: 240 }}>
+            <div ref={chartRef} style={{ borderRadius: 12, overflow: 'hidden', height: 240, visibility: noHistory ? 'hidden' : 'visible' }} />
+            {noHistory && (
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.35 }}>
+                  <path d="M3 17l4-4 4 4 4-6 4 3" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <p style={{ color: 'var(--text-muted)', fontSize: 13, fontFamily: 'var(--font-primary)', fontWeight: 500, margin: 0 }}>
+                  No price history yet
+                </p>
+                <p style={{ color: 'var(--text-muted)', fontSize: 11, margin: 0, opacity: 0.7 }}>
+                  Chart will populate as swaps occur in this pool
+                </p>
+              </div>
+            )}
+          </div>
         ) : (
           <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '48px 0', fontSize: 14 }}>
             No pools found. Add liquidity to see charts.
