@@ -1,15 +1,28 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useWallet } from './hooks/useWallet';
 import Header from './components/Header';
 import SwapCard from './components/SwapCard';
-import LiquidityCard from './components/LiquidityCard';
-import AnalyticsCard from './components/AnalyticsCard';
-import FaucetCard from './components/FaucetCard';
-import DocsCard from './components/DocsCard';
-import PortfolioCard from './components/PortfolioCard';
-import StakeCard from './components/StakeCard';
 import Footer from './components/Footer';
+
+// Lazy-load all non-critical tabs — only SwapCard is in the initial bundle
+const LiquidityCard = lazy(() => import('./components/LiquidityCard'));
+const AnalyticsCard = lazy(() => import('./components/AnalyticsCard'));
+const FaucetCard    = lazy(() => import('./components/FaucetCard'));
+const DocsCard      = lazy(() => import('./components/DocsCard'));
+const PortfolioCard = lazy(() => import('./components/PortfolioCard'));
+const StakeCard     = lazy(() => import('./components/StakeCard'));
+
+function TabSpinner() {
+  return (
+    <div style={{ display:'flex', justifyContent:'center', alignItems:'center', minHeight:240 }}>
+      <svg className="animate-spin" width="24" height="24" style={{ color:'var(--accent-blue)' }} viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/>
+        <path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+    </div>
+  );
+}
 
 /* ── Floating orbs background ──────────────────────────────────── */
 const ORB_DATA = [
@@ -76,7 +89,7 @@ export default function App() {
 
       <Header wallet={wallet} activeTab={activeTab} setActiveTab={setActiveTab} tabs={TABS} />
 
-      <main className="mx-auto px-4 pt-8 pb-24" style={{ maxWidth: wide ? 900 : 512 }}>
+      <main className="mx-auto pb-24" style={{ maxWidth: wide ? 900 : 512, padding: "0 16px", paddingTop: "clamp(16px, 4vw, 32px)" }}>
         {activeTab === 'swap' && (
           <>
             {/* Hero headline — only on Swap tab */}
@@ -96,12 +109,14 @@ export default function App() {
             <SwapCard wallet={wallet} onSwapSuccess={e => { setLastSwap(e); }} />
           </>
         )}
-        {activeTab === 'liquidity' && <LiquidityCard wallet={wallet} onLiquiditySuccess={e => { setLastSwap(e); }} />}
-        {activeTab === 'analytics' && <AnalyticsCard wallet={wallet} />}
-        {activeTab === 'portfolio' && <PortfolioCard wallet={wallet} swapEvents={lastSwap} />}
-        {activeTab === 'faucet'    && <FaucetCard wallet={wallet} />}
-        {activeTab === 'stake'     && <StakeCard wallet={wallet} />}
-        {activeTab === 'docs'      && <DocsCard />}
+        <Suspense fallback={<TabSpinner />}>
+          {activeTab === 'liquidity' && <LiquidityCard wallet={wallet} onLiquiditySuccess={e => { setLastSwap(e); }} />}
+          {activeTab === 'analytics' && <AnalyticsCard wallet={wallet} />}
+          {activeTab === 'portfolio' && <PortfolioCard wallet={wallet} swapEvents={lastSwap} />}
+          {activeTab === 'faucet'    && <FaucetCard wallet={wallet} />}
+          {activeTab === 'stake'     && <StakeCard wallet={wallet} />}
+          {activeTab === 'docs'      && <DocsCard />}
+        </Suspense>
       </main>
 
       <Footer />

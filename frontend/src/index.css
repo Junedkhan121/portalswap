@@ -420,3 +420,61 @@ body::after {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+/* ── Mobile Responsiveness ────────────────────────────────────────── */
+
+/* Fluid base font */
+html { font-size: clamp(14px, 2.5vw, 16px); }
+
+/* Prevent horizontal scroll on mobile */
+body { overflow-x: hidden; }
+
+/* Nav — compress on small screens */
+@media (max-width: 640px) {
+  /* Header row: tighter padding */
+  header { padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* Tab bar: allow horizontal scroll, no wrap */
+  nav { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+
+  /* Tab buttons: smaller text & padding */
+  nav button, nav a {
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+    white-space: nowrap;
+  }
+
+  /* Main content: less padding */
+  main { padding-left: 10px !important; padding-right: 10px !important; }
+
+  /* Cards: tighter inner padding */
+  .glass-card { border-radius: 20px !important; }
+
+  /* Token input rows: stack amount + selector vertically on very narrow screens */
+  /* (they're already flex; just ensure they don't overflow) */
+  .token-input-row { flex-wrap: wrap; }
+}
+
+/* Tablet — mild padding adjustments */
+@media (min-width: 641px) and (max-width: 900px) {
+  main { padding-left: 16px !important; padding-right: 16px !important; }
+}
+
+/* Touch target minimum — all interactive elements */
+@media (hover: none) and (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+  /* Except small utility buttons inside cards */
+  .icon-btn { min-height: unset; }
+}
+
+/* Analytics chart height: full viewport-height-aware on mobile */
+@media (max-width: 640px) {
+  .chart-container { height: 200px !important; min-height: 200px !important; }
+}
+
+/* Portfolio token list: shrink label on mobile */
+@media (max-width: 400px) {
+  .token-row-label { font-size: 12px !important; }
+}

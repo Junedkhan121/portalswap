@@ -8,6 +8,17 @@ export default defineConfig({
     open: true
   },
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react':  ['react', 'react-dom'],
+          'vendor-ethers': ['ethers'],
+          'vendor-charts': ['lightweight-charts'],
+          'vendor-toast':  ['react-hot-toast'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 800,
   }
 })
