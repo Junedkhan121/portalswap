@@ -1,60 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import TokenSelect from './TokenSelect';
 import { ADDRESSES, TOKENS } from '../utils/addresses';
 import { ROUTER_ABI, ERC20_ABI, FACTORY_ABI, PAIR_ABI } from '../utils/abis';
-
-/* ── Confetti ─────────────────────────────────────────────────── */
-function Confetti({ active, onDone }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!active || !ref.current) return;
-    const canvas = ref.current;
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-
-    // Resolve CSS variables to actual colors
-    const getColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-    const colors = [
-      getColor('--accent-blue') || '#3d7eff',
-      getColor('--accent-purple') || '#a855f7',
-      getColor('--accent-green') || '#10b981',
-      getColor('--accent-yellow') || '#fbbf24',
-      getColor('--accent-orange') || '#fb923c',
-      '#00d4ff'
-    ];
-
-    const pieces = Array.from({ length: 120 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
-      r: Math.random() * 7 + 3, d: Math.random() * 120,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      tilt: Math.floor(Math.random() * 10) - 10, tiltAngle: 0,
-      tiltAngleInc: Math.random() * 0.07 + 0.05,
-    }));
-    let frame, tick = 0;
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      pieces.forEach(p => {
-        ctx.beginPath(); ctx.lineWidth = p.r / 2; ctx.strokeStyle = p.color;
-        ctx.moveTo(p.x + p.tilt + p.r / 4, p.y);
-        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 4); ctx.stroke();
-      });
-      tick++;
-      pieces.forEach(p => {
-        p.tiltAngle += p.tiltAngleInc;
-        p.y += (Math.cos(tick / 16 + p.d) + 1 + p.r / 2) * 1.2;
-        p.tilt = Math.sin(p.tiltAngle) * 15;
-      });
-      if (tick < 180) { frame = requestAnimationFrame(draw); }
-      else { ctx.clearRect(0, 0, canvas.width, canvas.height); onDone?.(); }
-    };
-    draw();
-    return () => cancelAnimationFrame(frame);
-  }, [active, onDone]);
-  if (!active) return null;
-  return <canvas ref={ref} style={{ position:'fixed', inset:0, zIndex:9999, pointerEvents:'none' }} />;
-}
 
 /* ── Swap Success Card ────────────────────────────────────────── */
 
@@ -235,7 +184,6 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
   const [balanceOut, setBalanceOut] = useState('0');
   const [showSettings, setShowSettings] = useState(false);
   const [showWarning, setShowWarning]   = useState(false);
-  const [confetti, setConfetti]         = useState(false);
   const [successResult, setSuccessResult] = useState(null);
   const [routePath, setRoutePath]       = useState(null);
   const [gasEstimate, setGasEstimate]   = useState(null);
@@ -388,7 +336,6 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
 
   return (
     <>
-      {/* {confetti && <Confetti active={confetti} onDone={() => setConfetti(false)} />} */}
       {successResult && <SwapSuccessCard result={successResult} onClose={() => setSuccessResult(null)} />}
       {showWarning && <ImpactModal impact={priceImpact} onConfirm={executeSwap} onCancel={() => setShowWarning(false)} />}
 
