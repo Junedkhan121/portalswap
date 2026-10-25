@@ -47,7 +47,7 @@ export default function BotCard() {
           Trade PortalSwap directly from Telegram
         </p>
         <a
-          href="https://github.com/Junedkhan121/PortalSwap-TelegramBot"
+          href="https://github.com/Junedkhan121/Portalswap-telegram-bot"
           target="_blank"
           rel="noopener noreferrer"
           style={{

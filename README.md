@@ -78,7 +78,7 @@ The PortalSwap Telegram bot brings all DEX features to your chat: swap tokens, s
 4. Claim test tokens (pUSDT, pDAI, pWBTC, pLINK) directly in bot
 5. Start swapping, staking, and transferring instantly!
 
-**Bot Repository:** [PortalSwap-TelegramBot](https://github.com/Junedkhan121/PortalSwap-TelegramBot)
+**Bot Repository:** [Portalswap-telegram-bot](https://github.com/Junedkhan121/Portalswap-telegram-bot)
 
 ---
 
