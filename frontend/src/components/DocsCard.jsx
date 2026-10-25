@@ -351,8 +351,41 @@ export default function DocsCard() {
               Use the menu buttons to check balances, swap tokens, stake tPOT, or send transfers. All transactions happen on-chain — your keys stay in your Telegram session.
             </Step>
 
+            <h3 style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 16, color: 'var(--text-primary)', marginBottom: 12, marginTop: 24 }}>
+              Address mapping explained
+            </h3>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 12 }}>
+              The bot generates <strong style={{ color: 'var(--text-primary)' }}>two addresses from one private key</strong> — an EVM address and an SS58 address. Both are cryptographically linked and derived from the same keypair, but they serve different purposes:
+            </p>
+
+            <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
+              <div style={{ padding: 16, borderRadius: 14, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
+                <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--accent-blue)', marginBottom: 6 }}>🔷 EVM Address (0x...)</p>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: 8 }}>
+                  This is your standard Ethereum-style address. Use it for:
+                </p>
+                <ul style={{ margin: 0, padding: '0 0 0 20px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
+                  <li>Swapping tokens on PortalSwap</li>
+                  <li>Staking tPOT in the staking contract</li>
+                  <li>Adding/removing liquidity</li>
+                  <li>Any smart contract interaction</li>
+                </ul>
+              </div>
+
+              <div style={{ padding: 16, borderRadius: 14, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
+                <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--accent-green)', marginBottom: 6 }}>🔶 SS58 Address (5...)</p>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: 8 }}>
+                  This is the Substrate-native encoding of your address. Use it for:
+                </p>
+                <ul style={{ margin: 0, padding: '0 0 0 20px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
+                  <li>Receiving native tPOT from faucets</li>
+                  <li>Transfers from other wallets</li>
+                  <li>Any interaction with Portaldot's native runtime</li>
+                </ul>
+              </div>
+            </div>
+
             <div style={{
-              marginTop: 20,
               padding: 16,
               background: 'rgba(61,126,255,0.07)',
               border: '1px solid var(--border-accent)',
@@ -361,9 +394,7 @@ export default function DocsCard() {
               color: 'var(--text-secondary)',
               lineHeight: 1.6,
             }}>
-              <strong style={{ color: 'var(--text-primary)' }}>💡 About Addresses:</strong> The bot creates two addresses from one private key:
-              <br />• <strong>EVM (0x...)</strong> — For swaps, staking, and smart contracts
-              <br />• <strong>SS58 (5...)</strong> — For receiving native tPOT from faucets and transfers
+              <strong style={{ color: 'var(--text-primary)' }}>🔐 How it works:</strong> Both addresses are derived from your private key using different encoding schemes. When you receive tPOT to your SS58 address, it appears in your EVM address automatically — they share the same balance. The bot handles the conversion internally, so you never need to worry about it.
             </div>
 
             <div style={{
