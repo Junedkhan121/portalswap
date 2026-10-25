@@ -128,6 +128,7 @@ export default function BotCard() {
           { icon: '🪙', title: 'Claim Test Tokens', desc: 'Mint pUSDT, pDAI, pWBTC, pLINK directly from bot' },
           { icon: '💧', title: 'Donate to Faucet', desc: 'Support the ecosystem by donating tPOT back' },
           { icon: '📊', title: 'Portfolio View', desc: 'Track your holdings and transaction history' },
+          { icon: '🗺️', title: 'Address Mapper', desc: 'Convert any EVM address to SS58 format with detailed explanation' },
         ].map((feature, i) => (
           <div key={i} style={{
             background: 'var(--bg-primary)',
@@ -262,7 +263,7 @@ export default function BotCard() {
           alignItems: 'flex-start',
           gap: 12,
         }}>
-          <div style={{ fontSize: 24, marginTop: 2 }}>💡</div>
+          <div style={{ fontSize: 24, marginTop: 2 }}>🗺️</div>
           <div>
             <div style={{
               fontWeight: 600,
@@ -271,19 +272,21 @@ export default function BotCard() {
               marginBottom: 6,
               fontFamily: 'var(--font-body)',
             }}>
-              Understanding Your Addresses
+              Address Mapper - Understanding Your Addresses
             </div>
             <div style={{
               fontSize: 13,
               color: 'var(--text-secondary)',
               lineHeight: 1.7,
             }}>
-              The bot creates <strong>two addresses</strong> from one private key:<br />
-              <strong style={{ color: 'var(--accent-blue)' }}>• EVM Address (0x...)</strong> — For swapping tokens, staking, and smart contract interactions<br />
-              <strong style={{ color: 'var(--accent-green)' }}>• SS58 Address (5...)</strong> — For receiving native tPOT from testnet faucets<br />
-              <span style={{ fontSize: 12, opacity: 0.8, marginTop: 4, display: 'block' }}>
-                Both addresses are derived from your single private key and share the same balance.
-              </span>
+              The bot creates <strong>two addresses</strong> from one private key using cryptographic encoding:<br />
+              <strong style={{ color: 'var(--accent-blue)' }}>• EVM Address (0x...)</strong> — Standard Ethereum format for swaps, staking, and smart contracts<br />
+              <strong style={{ color: 'var(--accent-green)' }}>• SS58 Address (5...)</strong> — Substrate format for testnet faucets and native Portal operations<br />
+              <br />
+              <strong>How It Works:</strong><br />
+              Your EVM address is converted to SS58 format by: (1) extracting the 20 bytes, (2) adding Portal network prefix (42), (3) encoding with Base58 + checksum. Both formats represent the <strong>same account</strong>, controlled by the <strong>same private key</strong>, with the <strong>same balance</strong>.<br />
+              <br />
+              <strong style={{ color: 'var(--accent-blue)' }}>🗺️ Use Address Mapper</strong> in the bot to convert any EVM address to SS58 format with a detailed step-by-step explanation!
             </div>
           </div>
         </div>
