@@ -116,9 +116,9 @@ export default function Header({ wallet, activeTab, setActiveTab, tabs }) {
                 src="/logo.png"
                 alt="PortalSwap"
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
+                  width: 48,
+                  height: 48,
+                  borderRadius: 10,
                   objectFit: 'contain'
                 }}
               />
