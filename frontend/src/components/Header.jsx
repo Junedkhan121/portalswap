@@ -13,6 +13,7 @@ const PAGE_DESCS = {
   swap:      'Trade tokens instantly',
   liquidity: 'Provide liquidity & earn fees',
   stake:     'Stake tPOTv3 & track TVL',
+  bot:       'Trade via Telegram bot',
   analytics: 'Pool stats & price charts',
   portfolio: 'Your balances & LP positions',
   faucet:    'Get free test tokens',
