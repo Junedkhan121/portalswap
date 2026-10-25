@@ -19,6 +19,7 @@ PortalSwap is a fully on-chain, non-custodial AMM DEX built on the **Portaldot V
 | **Tx History** | Real-time log of swaps, liquidity adds/removes, faucet claims — persists per wallet |
 | **Stake** | Stake tPOTv3 to earn staking rewards via the PortalSwapStaking contract |
 | **Faucet** | Mint pUSDT, pDAI, pWBTC, pLINK for free — no gas tricks needed |
+| **Bot** | Trade via Telegram bot [@PlSwapbot](https://t.me/PlSwapbot) — non-custodial, mobile-first DeFi |
 | **Docs** | In-app contract addresses, AMM explainer, and network setup guide |
 
 ---
@@ -41,6 +42,43 @@ PortalSwap is a fully on-chain, non-custodial AMM DEX built on the **Portaldot V
 | **pDAI** | Portal DAI | `0x83DF1D2fD7E110c93234911E1798A6415F536D96` | 18 |
 | **pWBTC** | Portal Wrapped BTC | `0x35fdB379dd79c8D1AbaB5ed65192cfc0F0ec7bb2` | 8 |
 | **pLINK** | Portal LINK | `0xDFCd9E24Bc91b4886CDF773944C2FC311ea9e766` | 18 |
+
+---
+
+## Telegram Bot — Trade from Chat
+
+> **[@PlSwapbot](https://t.me/PlSwapbot)** — Full DeFi experience directly in Telegram
+
+The PortalSwap Telegram bot brings all DEX features to your chat: swap tokens, stake tPOT, transfer assets, and claim test tokens — no browser needed.
+
+### Features
+
+- **🔑 Non-Custodial Wallet** — Create or import your wallet securely (keys stay in your Telegram session)
+- **💰 Balance Tracking** — View tPOT and all token balances in real-time
+- **🔄 Token Swaps** — Trade with live price quotes instantly
+- **⚡ Stake tPOT** — Stake native tPOT to track TVL and earn future rewards
+- **💸 Transfer Tokens** — Send tPOT to any SS58 or EVM address
+- **🪙 Claim Test Tokens** — Mint pUSDT, pDAI, pWBTC, pLINK directly from bot
+- **💧 Donate to Faucet** — Support the ecosystem by donating tPOT back
+- **📊 Portfolio View** — Track your holdings and transaction history
+
+### Why Use the Bot?
+
+- **⚡ Lightning Fast** — Trade directly from chat, no browser needed
+- **🔒 100% Non-Custodial** — Your keys stay in your Telegram session, never on servers
+- **📱 Mobile First** — Full DeFi experience optimized for mobile trading
+- **🎯 Simple UX** — Conversational interface, no complex forms
+- **🚀 All-in-One** — Swap, stake, transfer, and manage tokens from one place
+
+### Quick Start
+
+1. Open [@PlSwapbot](https://t.me/PlSwapbot) on Telegram
+2. Send `/start` to create or import your wallet
+3. Get testnet tPOT from [faucet.portaldot.io](https://faucet.portaldot.io/) (use your SS58 address)
+4. Claim test tokens (pUSDT, pDAI, pWBTC, pLINK) directly in bot
+5. Start swapping, staking, and transferring instantly!
+
+**Bot Repository:** [PortalSwap-TelegramBot](https://github.com/Junedkhan121/PortalSwap-TelegramBot)
 
 ---
 
