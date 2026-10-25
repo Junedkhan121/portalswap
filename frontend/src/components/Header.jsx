@@ -96,7 +96,16 @@ export default function Header({ wallet, activeTab, setActiveTab, tabs }) {
                           }}
                           onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'var(--bg-menu-item-hover)'; }}
                           onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}>
-                          <div style={{ width: 32, height: 32, borderRadius: 10, background: isActive ? 'rgba(61,126,255,0.2)' : 'rgba(22,32,64,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isActive ? 'var(--accent-blue)' : 'var(--text-muted)' }}>{tab.icon}</div>
+                          <div style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 10,
+                            background: isActive ? 'rgba(61,126,255,0.2)' : (tab.id === 'bot' ? 'rgba(61,126,255,0.15)' : 'rgba(22,32,64,0.6)'),
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: isActive ? 'var(--accent-blue)' : (tab.id === 'bot' ? 'var(--accent-blue)' : 'var(--text-muted)')
+                          }}>{tab.icon}</div>
                           <div style={{ textAlign: 'left' }}>
                             <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: isActive ? 'var(--text-primary)' : 'var(--text-primary)', marginBottom: 1 }}>{tab.label}</p>
                             <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{PAGE_DESCS[tab.id]}</p>
