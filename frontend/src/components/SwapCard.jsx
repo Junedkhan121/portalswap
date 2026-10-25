@@ -220,6 +220,7 @@ function ImpactModal({ impact, onConfirm, onCancel }) {
 }
 
 /* ── Main SwapCard ─────────────────────────────────────────────── */
+// Updated: 2026-10-25 - Confetti fully disabled
 export default function SwapCard({ wallet, onSwapSuccess }) {
   const { account, signer, isCorrectChain, connect } = wallet;
   const [tokenIn, setTokenIn]     = useState(TOKENS[0]);
@@ -312,6 +313,7 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
   const executeSwap = async () => {
     if (!signer || !account) return;
     setShowWarning(false); setIsLoading(true);
+    console.log('[SWAP] Starting swap execution - confetti disabled');
     const id = toast.loading('Preparing swap…');
     try {
       const router   = new ethers.Contract(ADDRESSES.Router, ROUTER_ABI, signer);
