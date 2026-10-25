@@ -168,19 +168,56 @@ const ss58Address = encodeAddress(addressBytes, 42); // Portal prefix
 // Result: 5Hdtk3kJiQhAdb1oaZXNC8Yi5a8xbcm1GLA5miFsj9J9rqP7
 ```
 
-### Technical Details
+### How Address Mapping Works
 
-**SS58 Encoding Process:**
-1. Extract hex bytes from EVM address
-2. Add Portal network prefix (42)
-3. Encode with Base58 + checksum
-4. Result starts with "5" (Portal identifier)
+Address mapping converts EVM addresses (0x...) to Substrate SS58 format (5...) using cryptographic encoding. Both addresses represent the **same account** controlled by the **same private key**.
+
+**The Process Explained:**
+
+**Step 1: Extract Raw Bytes**
+Your EVM address is stored as 20 bytes in hexadecimal format:
+```
+EVM: 0xf67cE92096E4E171060B71bF0cca0DA9f9548c03
+Hex: f67cE92096E4E171060B71bF0cca0DA9f9548c03 (40 characters = 20 bytes)
+```
+
+**Step 2: Add Network Prefix**
+Portal uses network prefix `42`, which identifies the Portal blockchain. This prefix is prepended to your address bytes and determines what letter your SS58 address starts with:
+- Prefix 42 → Addresses start with **"5"**
+- Different networks use different prefixes (Polkadot = 0, Kusama = 2, etc.)
+
+**Step 3: Base58 Encoding + Checksum**
+The prefixed bytes are encoded using Base58 (similar to Bitcoin addresses):
+- Uses alphabet: `123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz`
+- Excludes confusing characters: 0, O, I, l
+- Adds checksum for error detection
+- Result: `5Hdtk3kJiQhAdb1oaZXNC8Yi5a8xbcm1GLA5miFsj9J9rqP7`
+
+**Why It Works:**
+```
+Same Private Key
+      ↓
+Same Public Key (20 bytes)
+      ↓
+   ┌──────┴──────┐
+   ↓             ↓
+EVM Format    SS58 Format
+(0x...)       (5...)
+   ↓             ↓
+Same Account, Same Balance
+```
 
 **Key Points:**
 - Both formats control the **same account**
 - Same **private key** for both
 - **Same balance** visible in both formats
 - Purely mathematical encoding, no separate wallets
+- Conversion is deterministic (same input = same output every time)
+- All Portal addresses start with "5" due to prefix 42
+
+**When to Use Each:**
+- **EVM (0x...):** Smart contracts, MetaMask, DEX operations
+- **SS58 (5...):** Testnet faucets, substrate-native operations
 
 See [ADDRESS_MAPPING.md](https://github.com/Junedkhan121/portalswap-telegram-bot/blob/main/ADDRESS_MAPPING.md) for deep-dive.
 

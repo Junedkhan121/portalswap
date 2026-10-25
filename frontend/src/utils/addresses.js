@@ -1,23 +1,42 @@
 // ============================================================
-// CONTRACT ADDRESSES — Update after deploying to Portaldot V3
-// Run: npx hardhat run scripts/deploy.js --network portaldotTestnet
-// Then paste the output addresses here
+// CONTRACT ADDRESSES — Portaldot V3 Testnet
+// ============================================================
+// All addresses below are in EVM format (0x...)
+// For SS58 format (5...), see DOCS.md
+// Both formats represent the SAME account, same private key
 // ============================================================
 
 export const CHAIN_ID = 420420777;
 export const CHAIN_NAME = "PortaldotV3 Testnet";
 export const RPC_URL = "https://test-evm-rpc-v3.portaldot.dev";
 export const NATIVE_SYMBOL = "tPOTv3";
-export const BLOCK_EXPLORER = ""; // Add if available
+export const BLOCK_EXPLORER = "https://scanner-testnet-v3.portaldot.dev";
 
-// Replace these with your deployed contract addresses
+// Core Protocol Contracts
 export const ADDRESSES = {
+  // WPOT - Wrapped Portal Token
+  // EVM: 0xf67cE92096E4E171060B71bF0cca0DA9f9548c03
+  // SS58: 5Hdtk3kJiQhAdb1oaZXNC8Yi5a8xbcm1GLA5miFsj9J9rqP7
   WPOT: "0xf67cE92096E4E171060B71bF0cca0DA9f9548c03",
+
+  // Factory - Creates and manages trading pairs
+  // EVM: 0xC631805C297c4233B33c30aF91245058902C1D18
+  // SS58: 5GYa3Tz8A12RcKHLSVfRMSsK598629k4AaazwTsVqNMiw89o
   Factory: "0xC631805C297c4233B33c30aF91245058902C1D18",
+
+  // Router - Handles swaps and liquidity operations
+  // EVM: 0xc17510Df29ae5E4C6C2A46CCB03197edd0963f2B
+  // SS58: 5GSMsgu7uv6mnaVd6LazM2gQa6aj1CvfpQkP9JpC5otpPxMd
   Router: "0xc17510Df29ae5E4C6C2A46CCB03197edd0963f2B",
-  // Deployed separately — run: npx hardhat run scripts/deploy-faucet.js --network portaldotTestnet
+
+  // Faucet - Distributes test tokens
+  // EVM: 0x2A9DFCC235d7169a9C0817eE0e27e51A6df95be0
+  // SS58: 5D2aoNfbwuVQinQNrGDz2VP8VCj4DoGKh19kpRjD9bY198jG
   tPotFaucet: "0x2A9DFCC235d7169a9C0817eE0e27e51A6df95be0",
-  // Deployed separately — run: npx hardhat run scripts/deploy-staking.js --network portaldotTestnet
+
+  // Staking - Stake tPOT for rewards
+  // EVM: 0xC3A38DEb577a345900B7F2d903faDC2E4328D831
+  // SS58: 5GVDnDmfQswL6gdZ8o4HcWnrMSZXHd4JZxwBKbMRLwJjc8sW
   tPotStaking: "0xC3A38DEb577a345900B7F2d903faDC2E4328D831",
 };
 
@@ -34,6 +53,8 @@ export const TOKENS = [
   {
     symbol: "WPOT",
     name: "Wrapped POT",
+    // EVM: 0xf67cE92096E4E171060B71bF0cca0DA9f9548c03
+    // SS58: 5Hdtk3kJiQhAdb1oaZXNC8Yi5a8xbcm1GLA5miFsj9J9rqP7
     address: "0xf67cE92096E4E171060B71bF0cca0DA9f9548c03",
     decimals: 18,
     logo: "🟣",
@@ -41,6 +62,8 @@ export const TOKENS = [
   {
     symbol: "pUSDT",
     name: "Portal USDT",
+    // EVM: 0xe0114Adc0a2072B602C645f5a07EeFA1eaDBDbc2
+    // SS58: 5H8VijCEfjB6p2EU2ySZSDWQ8NVCvxg2rGv8q1EAuTMzAmD5
     address: "0xe0114Adc0a2072B602C645f5a07EeFA1eaDBDbc2",
     decimals: 6,
     logo: "💵",
@@ -49,6 +72,8 @@ export const TOKENS = [
   {
     symbol: "pDAI",
     name: "Portal DAI",
+    // EVM: 0x83DF1D2fD7E110c93234911E1798A6415F536D96
+    // SS58: 5F3cQfL4cqY3wvcgfePUQnXnh8BbjokMzy3WdRLvEVVAXAX4
     address: "0x83DF1D2fD7E110c93234911E1798A6415F536D96",
     decimals: 18,
     logo: "🟡",
@@ -57,6 +82,8 @@ export const TOKENS = [
   {
     symbol: "pWBTC",
     name: "Portal Wrapped BTC",
+    // EVM: 0x35fdB379dd79c8D1AbaB5ed65192cfc0F0ec7bb2
+    // SS58: 5DHVm2w8At2Gu71xieMDD2xSNX9wqCiBaRrasQMrKNZdivQj
     address: "0x35fdB379dd79c8D1AbaB5ed65192cfc0F0ec7bb2",
     decimals: 8,
     logo: "🟠",
@@ -65,6 +92,8 @@ export const TOKENS = [
   {
     symbol: "pLINK",
     name: "Portal LINK",
+    // EVM: 0xDFCd9E24Bc91b4886CDF773944C2FC311ea9e766
+    // SS58: 5H89cimAbyGgLLUKkzbWnRoUMqguCsQiSuHSxAxMXBYTwLNQ
     address: "0xDFCd9E24Bc91b4886CDF773944C2FC311ea9e766",
     decimals: 18,
     logo: "🔗",
