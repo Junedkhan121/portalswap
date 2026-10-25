@@ -13,7 +13,18 @@ function Confetti({ active, onDone }) {
     const canvas = ref.current;
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const colors = ['var(--accent-blue)','var(--accent-purple)','var(--accent-green)','var(--accent-yellow)','var(--accent-orange)','#00d4ff'];
+
+    // Resolve CSS variables to actual colors
+    const getColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    const colors = [
+      getColor('--accent-blue') || '#3d7eff',
+      getColor('--accent-purple') || '#a855f7',
+      getColor('--accent-green') || '#10b981',
+      getColor('--accent-yellow') || '#fbbf24',
+      getColor('--accent-orange') || '#fb923c',
+      '#00d4ff'
+    ];
+
     const pieces = Array.from({ length: 120 }, () => ({
       x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
       r: Math.random() * 7 + 3, d: Math.random() * 120,
@@ -40,7 +51,7 @@ function Confetti({ active, onDone }) {
     };
     draw();
     return () => cancelAnimationFrame(frame);
-  }, [active]);
+  }, [active, onDone]);
   if (!active) return null;
   return <canvas ref={ref} style={{ position:'fixed', inset:0, zIndex:9999, pointerEvents:'none' }} />;
 }
