@@ -76,10 +76,15 @@ function shareSwapCard({ fromSymbol, toSymbol, amountIn, amountOut }) {
 }
 
 function SwapSuccessCard({ result, onClose }) {
+  if (!result) {
+    console.error('[SwapSuccessCard] No result provided!');
+    return null;
+  }
   const { fromSymbol, toSymbol, amountIn, amountOut, hash } = result;
+  console.log('[SwapSuccessCard] Rendering with:', { fromSymbol, toSymbol, amountIn, amountOut, hash });
   return (
-    <div style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.7)', backdropFilter:'blur(8px)' }}>
-      <div style={{ width:360, borderRadius:28, background:'linear-gradient(160deg,var(--bg-secondary) 0%,var(--bg-card-hover) 100%)', border:'1px solid rgba(16,185,129,0.35)', padding:'36px 28px 28px', boxShadow:'0 0 60px rgba(16,185,129,0.15), 0 24px 64px rgba(0,0,0,0.8)', textAlign:'center' }}>
+    <div onClick={onClose} style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.7)', backdropFilter:'blur(8px)' }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width:360, borderRadius:28, background:'linear-gradient(160deg,var(--bg-secondary) 0%,var(--bg-card-hover) 100%)', border:'1px solid rgba(16,185,129,0.35)', padding:'36px 28px 28px', boxShadow:'0 0 60px rgba(16,185,129,0.15), 0 24px 64px rgba(0,0,0,0.8)', textAlign:'center' }}>
 
         {/* Check icon */}
         <div style={{ width:72, height:72, borderRadius:'50%', margin:'0 auto 20px', background:'linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05))', border:'2px solid rgba(16,185,129,0.5)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 6px var(--accent-green)' }}>
