@@ -86,30 +86,44 @@ export default function BotCard() {
       {/* Features Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 16,
         marginBottom: 32,
       }}>
         {[
-          { icon: '💰', title: 'Check Balance', desc: 'View your tPOT and token balances' },
-          { icon: '🔄', title: 'Swap Tokens', desc: 'Trade tokens instantly' },
-          { icon: '⚡', title: 'Stake tPOT', desc: 'Earn rewards by staking' },
-          { icon: '💸', title: 'Send tPOT', desc: 'Transfer to SS58 addresses' },
-          { icon: '🔑', title: 'Wallet Management', desc: 'Create or import wallets' },
-          { icon: '🚰', title: 'Faucet Access', desc: 'Get testnet tokens easily' },
+          { icon: '🔑', title: 'Non-Custodial Wallet', desc: 'Create or import your wallet securely' },
+          { icon: '💰', title: 'Balance Tracking', desc: 'View tPOT and all token balances in real-time' },
+          { icon: '🔄', title: 'Token Swaps', desc: 'Trade tokens with live price quotes instantly' },
+          { icon: '⚡', title: 'Stake tPOT', desc: 'Stake native tPOT to track TVL and earn future rewards' },
+          { icon: '💸', title: 'Transfer Tokens', desc: 'Send tPOT to any SS58 or EVM address' },
+          { icon: '🪙', title: 'Claim Test Tokens', desc: 'Mint pUSDT, pDAI, pWBTC, pLINK directly from bot' },
+          { icon: '💧', title: 'Donate to Faucet', desc: 'Support the ecosystem by donating tPOT back' },
+          { icon: '📊', title: 'Portfolio View', desc: 'Track your holdings and transaction history' },
         ].map((feature, i) => (
           <div key={i} style={{
             background: 'var(--bg-primary)',
             borderRadius: 12,
-            padding: 16,
+            padding: 18,
             border: '1px solid var(--border-menu)',
+            transition: 'all 0.2s',
+            cursor: 'default',
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.borderColor = 'var(--accent-blue)';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(61, 126, 255, 0.15)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.borderColor = 'var(--border-menu)';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
           }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>{feature.icon}</div>
+            <div style={{ fontSize: 32, marginBottom: 10 }}>{feature.icon}</div>
             <div style={{
               fontWeight: 600,
               fontSize: 14,
               color: 'var(--text-primary)',
-              marginBottom: 4,
+              marginBottom: 6,
               fontFamily: 'var(--font-body)',
             }}>
               {feature.title}
@@ -117,7 +131,7 @@ export default function BotCard() {
             <div style={{
               fontSize: 12,
               color: 'var(--text-muted)',
-              lineHeight: 1.4,
+              lineHeight: 1.5,
             }}>
               {feature.desc}
             </div>
@@ -140,27 +154,70 @@ export default function BotCard() {
           color: 'var(--text-primary)',
           margin: '0 0 16px',
         }}>
-          🚀 Quick Start
+          🚀 Quick Start Guide
         </h3>
         <ol style={{
           margin: 0,
           paddingLeft: 20,
           color: 'var(--text-secondary)',
           fontSize: 14,
-          lineHeight: 1.8,
+          lineHeight: 1.9,
         }}>
-          <li>Click "Open {BOT_USERNAME}" above</li>
+          <li>Click "Open {BOT_USERNAME}" button above</li>
           <li>Send <code style={{
             background: 'var(--bg-card)',
             padding: '2px 6px',
             borderRadius: 4,
             fontSize: 13,
             fontFamily: 'monospace',
-          }}>/start</code> to begin</li>
-          <li>Create a new wallet or import existing one</li>
-          <li>Get testnet tPOT from faucet (use your SS58 address)</li>
-          <li>Start swapping, staking, and transferring!</li>
+          }}>/start</code> to create or import your wallet</li>
+          <li>Get testnet tPOT from <a href="https://faucet.portaldot.io/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>faucet.portaldot.io</a> (use your SS58 address)</li>
+          <li>Claim test tokens (pUSDT, pDAI, pWBTC, pLINK) directly in bot</li>
+          <li>Start swapping, staking, and transferring instantly!</li>
         </ol>
+      </div>
+
+      {/* Why Use Bot */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(61,126,255,0.06), rgba(16,185,129,0.06))',
+        borderRadius: 12,
+        padding: 24,
+        border: '1px solid var(--border-menu)',
+        marginBottom: 24,
+      }}>
+        <h3 style={{
+          fontFamily: 'var(--font-primary)',
+          fontSize: 18,
+          fontWeight: 700,
+          color: 'var(--text-primary)',
+          margin: '0 0 16px',
+        }}>
+          ✨ Why Use the Telegram Bot?
+        </h3>
+        <div style={{
+          display: 'grid',
+          gap: 12,
+        }}>
+          {[
+            { icon: '⚡', text: '<strong>Lightning Fast</strong> — Trade directly from chat, no browser needed' },
+            { icon: '🔒', text: '<strong>100% Non-Custodial</strong> — Your keys stay in your Telegram session, never on servers' },
+            { icon: '📱', text: '<strong>Mobile First</strong> — Full DeFi experience optimized for mobile trading' },
+            { icon: '🎯', text: '<strong>Simple UX</strong> — Conversational interface, no complex forms or confusing menus' },
+            { icon: '🚀', text: '<strong>All-in-One</strong> — Swap, stake, transfer, and manage tokens from one place' },
+          ].map((item, i) => (
+            <div key={i} style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 12,
+              fontSize: 14,
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+            }}>
+              <span style={{ fontSize: 18, marginTop: 1 }}>{item.icon}</span>
+              <span dangerouslySetInnerHTML={{ __html: item.text }} />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Address Info */}
@@ -169,6 +226,7 @@ export default function BotCard() {
         borderRadius: 12,
         padding: 20,
         border: '1px solid var(--border-menu)',
+        marginBottom: 24,
       }}>
         <div style={{
           display: 'flex',
@@ -184,16 +242,19 @@ export default function BotCard() {
               marginBottom: 6,
               fontFamily: 'var(--font-body)',
             }}>
-              About Addresses
+              Understanding Your Addresses
             </div>
             <div style={{
               fontSize: 13,
               color: 'var(--text-secondary)',
-              lineHeight: 1.6,
+              lineHeight: 1.7,
             }}>
-              The bot creates two addresses for you:<br />
-              <strong>• EVM (0x...)</strong> — For swaps and smart contracts<br />
-              <strong>• SS58 (5...)</strong> — For receiving native tPOT from faucets
+              The bot creates <strong>two addresses</strong> from one private key:<br />
+              <strong style={{ color: 'var(--accent-blue)' }}>• EVM Address (0x...)</strong> — For swapping tokens, staking, and smart contract interactions<br />
+              <strong style={{ color: 'var(--accent-green)' }}>• SS58 Address (5...)</strong> — For receiving native tPOT from testnet faucets<br />
+              <span style={{ fontSize: 12, opacity: 0.8, marginTop: 4, display: 'block' }}>
+                Both addresses are derived from your single private key and share the same balance.
+              </span>
             </div>
           </div>
         </div>
@@ -201,16 +262,27 @@ export default function BotCard() {
 
       {/* Security Notice */}
       <div style={{
-        marginTop: 24,
-        padding: 16,
-        background: 'rgba(255, 193, 7, 0.05)',
-        border: '1px solid rgba(255, 193, 7, 0.2)',
-        borderRadius: 8,
-        fontSize: 12,
-        color: 'var(--text-muted)',
-        lineHeight: 1.5,
+        marginTop: 0,
+        padding: 18,
+        background: 'rgba(255, 193, 7, 0.06)',
+        border: '1px solid rgba(255, 193, 7, 0.25)',
+        borderRadius: 10,
+        fontSize: 13,
+        color: 'var(--text-secondary)',
+        lineHeight: 1.7,
       }}>
-        <strong style={{ color: 'var(--text-primary)' }}>⚠️ Security:</strong> Your wallet keys are stored in your Telegram session only. Never share your private key with anyone. This bot runs on Portaldot V3 Testnet — use test funds only.
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <span style={{ fontSize: 18 }}>⚠️</span>
+          <div>
+            <strong style={{ color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>Security & Testnet Notice</strong>
+            <div>
+              • Your private keys are stored <strong>in-session only</strong> on Telegram servers, never on our servers<br />
+              • <strong>Never share your private key</strong> with anyone — we'll never ask for it<br />
+              • This bot runs on <strong>Portaldot V3 Testnet</strong> — use test funds only, no real value<br />
+              • For production use, always verify contract addresses and use hardware wallets
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
