@@ -109,7 +109,7 @@ export default function TokenSelect({ selectedToken, onSelect, otherToken }) {
               </p>
             </div>
 
-            <div style={{ maxHeight: 300, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 8 }}>
+            <div style={{ maxHeight: 400, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 8 }}>
               {/* Import result */}
               {importing && (
                 <div style={{ padding: '12px 16px', color: 'var(--text-muted)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
