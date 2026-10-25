@@ -386,7 +386,7 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
 
   return (
     <>
-      {confetti && <Confetti active={confetti} onDone={() => setConfetti(false)} />}
+      {/* {confetti && <Confetti active={confetti} onDone={() => setConfetti(false)} />} */}
       {successResult && <SwapSuccessCard result={successResult} onClose={() => setSuccessResult(null)} />}
       {showWarning && <ImpactModal impact={priceImpact} onConfirm={executeSwap} onCancel={() => setShowWarning(false)} />}
 
