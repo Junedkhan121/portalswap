@@ -16,6 +16,13 @@ export default function Footer() {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <a href="https://scanner-testnet-v3.portaldot.dev/#/" target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: 11, color: 'var(--text-muted)', textDecoration: 'none', fontFamily: 'var(--font-body)', transition: 'color 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.color='var(--accent-blue)'}
+            onMouseLeave={e => e.currentTarget.style.color='var(--text-muted)'}
+          >
+            Explorer
+          </a>
           <a href="https://discord.gg/portaldot" target="_blank" rel="noopener noreferrer"
             style={{ fontSize: 11, color: 'var(--text-muted)', textDecoration: 'none', fontFamily: 'var(--font-body)', transition: 'color 0.15s' }}
             onMouseEnter={e => e.currentTarget.style.color='var(--accent-blue)'}
