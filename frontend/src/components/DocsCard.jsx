@@ -298,7 +298,7 @@ export default function DocsCard() {
               without leaving the app.
             </p>
 
-            <a href="https://t.me/PortalSwapBot" target="_blank" rel="noopener noreferrer"
+            <a href="https://t.me/PlSwapbot" target="_blank" rel="noopener noreferrer"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -316,7 +316,7 @@ export default function DocsCard() {
               }}
               onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}>
-              <span>✈️</span> Open @PortalSwapBot
+              <span>✈️</span> Open @PlSwapbot
             </a>
 
             <h3 style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 16, color: 'var(--text-primary)', marginBottom: 12, marginTop: 24 }}>
@@ -339,7 +339,7 @@ export default function DocsCard() {
               How to use
             </h3>
             <Step n="1" title="Open the bot">
-              Click the link above or search for <Code>@PortalSwapBot</Code> in Telegram. Send <Code>/start</Code> to begin.
+              Click the link above or search for <Code>@PlSwapbot</Code> in Telegram. Send <Code>/start</Code> to begin.
             </Step>
             <Step n="2" title="Create or import wallet">
               Choose "Create New Wallet" for a fresh wallet, or "Import Wallet" if you have an existing private key.

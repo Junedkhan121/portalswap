@@ -3,7 +3,7 @@
  */
 
 export default function BotCard() {
-  const BOT_USERNAME = '@PortalSwapBot'; // Replace with your actual bot username
+  const BOT_USERNAME = '@PlSwapbot';
 
   return (
     <div style={{
