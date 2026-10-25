@@ -16,19 +16,17 @@ export default function BotCard() {
     }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <div style={{
-          width: 80,
-          height: 80,
-          margin: '0 auto 16px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--accent-blue), #2E9BFF)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 40,
-        }}>
-          🤖
-        </div>
+        <img
+          src="/logo.png"
+          alt="PortalSwap"
+          style={{
+            width: 80,
+            height: 80,
+            margin: '0 auto 16px',
+            display: 'block',
+            objectFit: 'contain'
+          }}
+        />
         <h2 style={{
           fontFamily: 'var(--font-primary)',
           fontSize: 28,
@@ -202,7 +200,7 @@ export default function BotCard() {
             fontSize: 13,
             fontFamily: 'monospace',
           }}>/start</code> to create or import your wallet</li>
-          <li>Get testnet tPOT from <a href="https://faucet.portaldot.io/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>faucet.portaldot.io</a> (use your SS58 address)</li>
+          <li>Get testnet tPOT from <a href="https://discord.gg/portaldot" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>Portaldot Discord</a> (use your SS58 address)</li>
           <li>Claim test tokens (pUSDT, pDAI, pWBTC, pLINK) directly in bot</li>
           <li>Start swapping, staking, and transferring instantly!</li>
         </ol>

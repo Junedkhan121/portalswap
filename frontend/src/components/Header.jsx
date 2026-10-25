@@ -112,15 +112,16 @@ export default function Header({ wallet, activeTab, setActiveTab, tabs }) {
 
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ position: 'relative', width: 32, height: 32, flexShrink: 0 }}>
-                <div style={{ position: 'absolute', inset: 0, borderRadius: 10, background: 'linear-gradient(135deg,var(--accent-blue),var(--accent-purple))', opacity: 0.25, filter: 'blur(6px)' }} />
-                <div style={{ position: 'relative', width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,var(--accent-blue),var(--accent-purple))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="17" height="17" viewBox="0 0 20 20" fill="none">
-                    <path d="M10 2L18 7V13L10 18L2 13V7L10 2Z" stroke="#fff" strokeWidth="1.5" fill="rgba(255,255,255,0.1)"/>
-                    <path d="M10 6L14 8.5V13.5L10 16L6 13.5V8.5L10 6Z" fill="#fff" opacity="0.8"/>
-                  </svg>
-                </div>
-              </div>
+              <img
+                src="/logo.png"
+                alt="PortalSwap"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  objectFit: 'contain'
+                }}
+              />
               <div>
                 <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)', lineHeight: 1.1 }}>PortalSwap</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>

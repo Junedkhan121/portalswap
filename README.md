@@ -74,7 +74,7 @@ The PortalSwap Telegram bot brings all DEX features to your chat: swap tokens, s
 
 1. Open [@PlSwapbot](https://t.me/PlSwapbot) on Telegram
 2. Send `/start` to create or import your wallet
-3. Get testnet tPOT from [faucet.portaldot.io](https://faucet.portaldot.io/) (use your SS58 address)
+3. Get testnet tPOT from [Portaldot Discord](https://discord.gg/portaldot) (use your SS58 address)
 4. Claim test tokens (pUSDT, pDAI, pWBTC, pLINK) directly in bot
 5. Start swapping, staking, and transferring instantly!
 
