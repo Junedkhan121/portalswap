@@ -348,7 +348,7 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
       window.dispatchEvent(new CustomEvent('ps_history_update', { detail: { key } }));
       onSwapSuccess?.(entry);
       setAmountIn(''); setAmountOut('');
-      setConfetti(true);
+      // setConfetti(true);
       setSuccessResult(entry);
       fetchBalances();
     } catch (err) {
