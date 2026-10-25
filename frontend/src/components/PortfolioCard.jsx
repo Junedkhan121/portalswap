@@ -6,82 +6,12 @@ import { TokenAvatar } from './TokenSelect';
 
 const RPC = new ethers.JsonRpcProvider(RPC_URL);
 
-function timeAgo(ts) {
-  const s = Math.floor((Date.now() - ts) / 1000);
-  if (s < 60) return `${s}s ago`;
-  if (s < 3600) return `${Math.floor(s/60)}m ago`;
-  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
-  return `${Math.floor(s/86400)}d ago`;
-}
-
-export default function PortfolioCard({ wallet, swapEvents }) {
+export default function PortfolioCard({ wallet }) {
   const { account, signer } = wallet;
   const [balances, setBalances] = useState([]);
   const [prices, setPrices]     = useState({});
   const [loading, setLoading]   = useState(false);
-  const [history, setHistory]   = useState([]);
   const [lpPositions, setLpPositions] = useState([]);
-  const [tab, setTab]           = useState('portfolio');
-
-  // Fetch transactions from Portaldot scanner
-  const fetchExplorerTxs = useCallback(async (address) => {
-    if (!address) return [];
-    try {
-      const url = `https://scanner-testnet-v3.portaldot.dev/api?module=account&action=txlist&address=${address}&sort=desc`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data.status === '1' && Array.isArray(data.result)) {
-        // Map explorer transactions to our format
-        return data.result.slice(0, 50).map(tx => ({
-          type: 'explorer',
-          hash: tx.hash,
-          from: tx.from,
-          to: tx.to,
-          value: ethers.formatEther(tx.value || '0'),
-          timestamp: parseInt(tx.timeStamp) * 1000,
-          blockNumber: tx.blockNumber,
-          gasUsed: tx.gasUsed,
-          status: tx.txreceipt_status === '1' ? 'success' : 'failed'
-        }));
-      }
-    } catch (err) {
-      console.warn('[Portfolio] Failed to fetch explorer txs:', err.message);
-    }
-    return [];
-  }, []);
-
-  // Load tx history from localStorage + explorer, keyed by wallet so history persists across sessions
-  useEffect(() => {
-    const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
-    const load = async () => {
-      const localTxs = JSON.parse(localStorage.getItem(key) || '[]');
-      const explorerTxs = await fetchExplorerTxs(account);
-
-      // Merge and dedupe by hash
-      const txMap = new Map();
-      [...localTxs, ...explorerTxs].forEach(tx => {
-        if (tx.hash && !txMap.has(tx.hash)) txMap.set(tx.hash, tx);
-      });
-
-      // Sort by timestamp desc
-      const merged = Array.from(txMap.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      setHistory(merged);
-    };
-    load();
-    // 'storage' only fires from OTHER tabs. Use custom event for same-tab updates.
-    const onUpdate = (e) => { if (!e.detail || e.detail.key === key) load(); };
-    window.addEventListener('ps_history_update', onUpdate);
-    return () => window.removeEventListener('ps_history_update', onUpdate);
-  }, [account, swapEvents, fetchExplorerTxs]);
-
-  // Refresh when a new swap fires
-  useEffect(() => {
-    if (swapEvents) {
-      const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
-      setHistory(JSON.parse(localStorage.getItem(key) || '[]'));
-    }
-  }, [swapEvents, account]);
 
   const fetchBalances = useCallback(async () => {
     if (!account) return;
@@ -168,21 +98,12 @@ export default function PortfolioCard({ wallet, swapEvents }) {
 
   return (
     <div className="glass-card rounded-3xl overflow-hidden">
-      {/* Sub-tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--border-secondary)', padding: '0 20px' }}>
-        {['portfolio', 'history'].map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            style={{
-              padding: '16px 4px', marginRight: 24, fontSize: 14, fontWeight: 600,
-              fontFamily: 'var(--font-primary)', background: 'none', border: 'none', cursor: 'pointer',
-              color: tab === t ? 'var(--text-primary)' : 'var(--text-muted)',
-              borderBottom: tab === t ? '2px solid var(--accent-blue)' : '2px solid transparent',
-              transition: 'all 0.15s', marginBottom: -1,
-            }}>
-            {t === 'portfolio' ? 'Portfolio' : 'Tx History'}
-          </button>
-        ))}
-        <button onClick={fetchBalances} style={{ marginLeft: 'auto', alignSelf: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-secondary)', padding: '16px 20px' }}>
+        <h3 style={{ fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-primary)', color: 'var(--text-primary)', margin: 0 }}>
+          Portfolio
+        </h3>
+        <button onClick={fetchBalances} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}>
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
             style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -191,125 +112,40 @@ export default function PortfolioCard({ wallet, swapEvents }) {
       </div>
 
       <div style={{ padding: 20 }}>
-        {tab === 'portfolio' ? (
-          <>
-            {!account ? (
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, padding: '32px 0' }}>Connect your wallet to see balances</p>
-            ) : (
-              <>
-                {/* Total value */}
-                <div style={{ textAlign: 'center', padding: '16px 0 20px' }}>
-                  <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Total Portfolio Value</p>
-                  <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 32, color: 'var(--text-primary)' }}>
-                    {totalValue.toFixed(4)} <span style={{ fontSize: 16, color: 'var(--text-muted)' }}>{NATIVE_SYMBOL}</span>
-                  </p>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {balances.filter(t => parseFloat(t.balance) > 0 || t.isNative).map(t => {
-                    const price = prices[t.symbol] ?? 0;
-                    const value = parseFloat(t.balance || 0) * price;
-                    return (
-                      <div key={t.symbol} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
-                        <TokenAvatar token={t} size={40} />
-                        <div style={{ flex: 1 }}>
-                          <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{t.symbol}</p>
-                          <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t.name}</p>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
-                            {parseFloat(t.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
-                          </p>
-                          {price > 0 && (
-                            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{value.toFixed(4)} {NATIVE_SYMBOL}</p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </>
+        {!account ? (
+          <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, padding: '32px 0' }}>Connect your wallet to see balances</p>
         ) : (
           <>
-            {history.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 14, padding: '32px 0' }}>No transactions yet. Swap or add liquidity to see history here.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {history.map((tx, i) => {
-                  const type = tx.type || 'swap';
-
-                  // Icon config per type
-                  const iconConfig = {
-                    swap:     { bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.3)',  color: '#10b981' },
-                    add:      { bg: 'rgba(61,126,255,0.15)',  border: 'rgba(61,126,255,0.3)',  color: '#3d7eff' },
-                    remove:   { bg: 'rgba(239,68,68,0.15)',   border: 'rgba(239,68,68,0.3)',   color: '#ef4444' },
-                    explorer: { bg: 'rgba(156,163,175,0.15)', border: 'rgba(156,163,175,0.3)', color: '#9ca3af' },
-                  }[type] || { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.3)', color: '#10b981' };
-
-                  const icon = type === 'swap' ? (
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
-                  ) : type === 'add' ? (
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m-8-8h16"/>
-                    </svg>
-                  ) : type === 'remove' ? (
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4"/>
-                    </svg>
-                  ) : (
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12M8 12h12M8 17h12M3 7h.01M3 12h.01M3 17h.01"/>
-                    </svg>
-                  );
-
-                  let label = '';
-                  let sublabel = '';
-
-                  if (type === 'explorer') {
-                    // Explorer transactions
-                    const isOutgoing = tx.from?.toLowerCase() === account?.toLowerCase();
-                    const ethValue = parseFloat(tx.value || 0);
-                    label = isOutgoing
-                      ? `Sent ${ethValue.toFixed(4)} ${NATIVE_SYMBOL}`
-                      : `Received ${ethValue.toFixed(4)} ${NATIVE_SYMBOL}`;
-                    sublabel = `${isOutgoing ? 'To' : 'From'}: ${(isOutgoing ? tx.to : tx.from)?.slice(0, 6)}...${(isOutgoing ? tx.to : tx.from)?.slice(-4)}`;
-                  } else if (type === 'swap') {
-                    label = `${parseFloat(tx.amountIn).toFixed(4)} ${tx.from} → ${parseFloat(tx.amountOut).toFixed(4)} ${tx.to}`;
-                    sublabel = 'Swap';
-                  } else if (type === 'add') {
-                    label = `${parseFloat(tx.amountA).toFixed(4)} ${tx.symbolA} + ${parseFloat(tx.amountB).toFixed(4)} ${tx.symbolB}`;
-                    sublabel = tx.lpReceived && parseFloat(tx.lpReceived) > 0
-                      ? `Added liquidity · +${parseFloat(tx.lpReceived).toFixed(6)} LP`
-                      : 'Added liquidity';
-                  } else {
-                    label = `${tx.symbolA} / ${tx.symbolB}`;
-                    sublabel = `Removed ${parseFloat(tx.lpAmount).toFixed(6)} LP`;
-                  }
-
-                  return (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: iconConfig.bg, border: `1px solid ${iconConfig.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        {icon}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {label}
-                        </p>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>{sublabel} · {timeAgo(tx.time)}</p>
-                      </div>
-                      <a href={`https://test-evm-rpc-v3.portaldot.dev`} target="_blank" rel="noopener noreferrer"
-                        title={tx.hash}
-                        style={{ fontSize: 11, color: 'var(--accent-blue)', fontFamily: 'monospace', background: 'var(--bg-badge)', padding: '3px 8px', borderRadius: 6, textDecoration: 'none', flexShrink: 0 }}>
-                        {tx.hash?.slice(0, 8)}…
-                      </a>
+            {/* Total value */}
+            <div style={{ textAlign: 'center', padding: '16px 0 20px' }}>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Total Portfolio Value</p>
+              <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 32, color: 'var(--text-primary)' }}>
+                {totalValue.toFixed(4)} <span style={{ fontSize: 16, color: 'var(--text-muted)' }}>{NATIVE_SYMBOL}</span>
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {balances.filter(t => parseFloat(t.balance) > 0 || t.isNative).map(t => {
+                const price = prices[t.symbol] ?? 0;
+                const value = parseFloat(t.balance || 0) * price;
+                return (
+                  <div key={t.symbol} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'var(--bg-menu-item)', border: '1px solid var(--border-secondary)' }}>
+                    <TokenAvatar token={t} size={40} />
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{t.symbol}</p>
+                      <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t.name}</p>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>
+                        {parseFloat(t.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                      </p>
+                      {price > 0 && (
+                        <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{value.toFixed(4)} {NATIVE_SYMBOL}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </>
         )}
       </div>

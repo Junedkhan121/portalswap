@@ -289,14 +289,10 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
         amountA, amountB, lpReceived, hash: receipt.hash,
       });
       setConfetti(true);
-      // Save to tx history
-      const entry = { type: 'add', symbolA: tokenA.symbol, symbolB: tokenB.symbol, amountA, amountB, lpReceived, time: Date.now(), hash: receipt.hash };
-      const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
-      const hist = JSON.parse(localStorage.getItem(key) || '[]');
-      hist.unshift(entry);
-      localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
-      window.dispatchEvent(new CustomEvent('ps_history_update', { detail: { key } }));
-      onLiquiditySuccess?.(entry);
+
+      // Transaction history removed - will be added in future integration
+
+      onLiquiditySuccess?.();
       setAmountA('');
       setAmountB('');
     } catch (err) {
@@ -335,14 +331,10 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
       }
       const receipt = await tx.wait();
       toast.success('Liquidity removed!', { id: toastId });
-      // Save to tx history
-      const entry = { type: 'remove', symbolA: tokenA.symbol, symbolB: tokenB.symbol, lpAmount: removeAmount, time: Date.now(), hash: receipt.hash };
-      const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
-      const hist = JSON.parse(localStorage.getItem(key) || '[]');
-      hist.unshift(entry);
-      localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
-      window.dispatchEvent(new CustomEvent('ps_history_update', { detail: { key } }));
-      onLiquiditySuccess?.(entry);
+
+      // Transaction history removed - will be added in future integration
+
+      onLiquiditySuccess?.();
       setRemoveAmount('');
       fetchPairInfo();
       fetchBalances();

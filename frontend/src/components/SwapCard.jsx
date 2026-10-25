@@ -296,21 +296,16 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
       toast.loading('Confirming…', { id });
       const receipt = await tx.wait();
       toast.dismiss(id);
+
+      // Transaction history removed - will be added in future integration
+
       const entry = {
-        type: 'swap',
-        from: tokenIn.symbol,
-        to: tokenOut.symbol,
         fromSymbol: tokenIn.symbol,
         toSymbol: tokenOut.symbol,
         amountIn,
         amountOut,
-        hash: receipt.hash,
-        time: Date.now()
+        hash: receipt.hash
       };
-      const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
-      const hist = JSON.parse(localStorage.getItem(key) || '[]');
-      hist.unshift(entry); localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
-      window.dispatchEvent(new CustomEvent('ps_history_update', { detail: { key } }));
       onSwapSuccess?.(entry);
       setAmountIn(''); setAmountOut('');
       // setConfetti(true);
