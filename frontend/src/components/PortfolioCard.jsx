@@ -23,16 +23,57 @@ export default function PortfolioCard({ wallet, swapEvents }) {
   const [lpPositions, setLpPositions] = useState([]);
   const [tab, setTab]           = useState('portfolio');
 
-  // Load tx history from localStorage, keyed by wallet so history persists across sessions
+  // Fetch transactions from Portaldot scanner
+  const fetchExplorerTxs = useCallback(async (address) => {
+    if (!address) return [];
+    try {
+      const url = `https://scanner-testnet-v3.portaldot.dev/api?module=account&action=txlist&address=${address}&sort=desc`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.status === '1' && Array.isArray(data.result)) {
+        // Map explorer transactions to our format
+        return data.result.slice(0, 50).map(tx => ({
+          type: 'explorer',
+          hash: tx.hash,
+          from: tx.from,
+          to: tx.to,
+          value: ethers.formatEther(tx.value || '0'),
+          timestamp: parseInt(tx.timeStamp) * 1000,
+          blockNumber: tx.blockNumber,
+          gasUsed: tx.gasUsed,
+          status: tx.txreceipt_status === '1' ? 'success' : 'failed'
+        }));
+      }
+    } catch (err) {
+      console.warn('[Portfolio] Failed to fetch explorer txs:', err.message);
+    }
+    return [];
+  }, []);
+
+  // Load tx history from localStorage + explorer, keyed by wallet so history persists across sessions
   useEffect(() => {
     const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
-    const load = () => setHistory(JSON.parse(localStorage.getItem(key) || '[]'));
+    const load = async () => {
+      const localTxs = JSON.parse(localStorage.getItem(key) || '[]');
+      const explorerTxs = await fetchExplorerTxs(account);
+
+      // Merge and dedupe by hash
+      const txMap = new Map();
+      [...localTxs, ...explorerTxs].forEach(tx => {
+        if (tx.hash && !txMap.has(tx.hash)) txMap.set(tx.hash, tx);
+      });
+
+      // Sort by timestamp desc
+      const merged = Array.from(txMap.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      setHistory(merged);
+    };
     load();
     // 'storage' only fires from OTHER tabs. Use custom event for same-tab updates.
     const onUpdate = (e) => { if (!e.detail || e.detail.key === key) load(); };
     window.addEventListener('ps_history_update', onUpdate);
     return () => window.removeEventListener('ps_history_update', onUpdate);
-  }, [account, swapEvents]);
+  }, [account, swapEvents, fetchExplorerTxs]);
 
   // Refresh when a new swap fires
   useEffect(() => {
@@ -200,9 +241,10 @@ export default function PortfolioCard({ wallet, swapEvents }) {
 
                   // Icon config per type
                   const iconConfig = {
-                    swap:   { bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.3)',  color: '#10b981' },
-                    add:    { bg: 'rgba(61,126,255,0.15)',  border: 'rgba(61,126,255,0.3)',  color: '#3d7eff' },
-                    remove: { bg: 'rgba(239,68,68,0.15)',   border: 'rgba(239,68,68,0.3)',   color: '#ef4444' },
+                    swap:     { bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.3)',  color: '#10b981' },
+                    add:      { bg: 'rgba(61,126,255,0.15)',  border: 'rgba(61,126,255,0.3)',  color: '#3d7eff' },
+                    remove:   { bg: 'rgba(239,68,68,0.15)',   border: 'rgba(239,68,68,0.3)',   color: '#ef4444' },
+                    explorer: { bg: 'rgba(156,163,175,0.15)', border: 'rgba(156,163,175,0.3)', color: '#9ca3af' },
                   }[type] || { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.3)', color: '#10b981' };
 
                   const icon = type === 'swap' ? (
@@ -213,15 +255,28 @@ export default function PortfolioCard({ wallet, swapEvents }) {
                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m-8-8h16"/>
                     </svg>
-                  ) : (
+                  ) : type === 'remove' ? (
                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4"/>
+                    </svg>
+                  ) : (
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={iconConfig.color} strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12M8 12h12M8 17h12M3 7h.01M3 12h.01M3 17h.01"/>
                     </svg>
                   );
 
                   let label = '';
                   let sublabel = '';
-                  if (type === 'swap') {
+
+                  if (type === 'explorer') {
+                    // Explorer transactions
+                    const isOutgoing = tx.from?.toLowerCase() === account?.toLowerCase();
+                    const ethValue = parseFloat(tx.value || 0);
+                    label = isOutgoing
+                      ? `Sent ${ethValue.toFixed(4)} ${NATIVE_SYMBOL}`
+                      : `Received ${ethValue.toFixed(4)} ${NATIVE_SYMBOL}`;
+                    sublabel = `${isOutgoing ? 'To' : 'From'}: ${(isOutgoing ? tx.to : tx.from)?.slice(0, 6)}...${(isOutgoing ? tx.to : tx.from)?.slice(-4)}`;
+                  } else if (type === 'swap') {
                     label = `${parseFloat(tx.amountIn).toFixed(4)} ${tx.from} → ${parseFloat(tx.amountOut).toFixed(4)} ${tx.to}`;
                     sublabel = 'Swap';
                   } else if (type === 'add') {
