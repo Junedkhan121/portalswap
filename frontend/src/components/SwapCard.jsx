@@ -307,7 +307,7 @@ export default function SwapCard({ wallet, onSwapSuccess }) {
         hash: receipt.hash,
         time: Date.now()
       };
-      const key = `ps_history_\${account?.toLowerCase() || 'anon'}`;
+      const key = `ps_history_${account?.toLowerCase() || 'anon'}`;
       const hist = JSON.parse(localStorage.getItem(key) || '[]');
       hist.unshift(entry); localStorage.setItem(key, JSON.stringify(hist.slice(0, 50)));
       window.dispatchEvent(new CustomEvent('ps_history_update', { detail: { key } }));
