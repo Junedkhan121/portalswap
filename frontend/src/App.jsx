@@ -12,6 +12,7 @@ const FaucetCard    = lazy(() => import('./components/FaucetCard'));
 const DocsCard      = lazy(() => import('./components/DocsCard'));
 const PortfolioCard = lazy(() => import('./components/PortfolioCard'));
 const StakeCard     = lazy(() => import('./components/StakeCard'));
+const BotCard       = lazy(() => import('./components/BotCard'));
 
 function TabSpinner() {
   return (
@@ -61,6 +62,8 @@ const TABS = [
     icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg> },
   { id: 'stake', label: 'Stake',
     icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
+  { id: 'bot', label: 'Bot',
+    icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg> },
   { id: 'analytics', label: 'Analytics',
     icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg> },
   { id: 'portfolio', label: 'Portfolio',
@@ -76,7 +79,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('swap');
   const [lastSwap, setLastSwap]   = useState(null);
 
-  const wide = activeTab === 'docs' || activeTab === 'analytics';
+  const wide = activeTab === 'docs' || activeTab === 'analytics' || activeTab === 'bot';
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
@@ -115,6 +118,7 @@ export default function App() {
           {activeTab === 'portfolio' && <PortfolioCard wallet={wallet} swapEvents={lastSwap} />}
           {activeTab === 'faucet'    && <FaucetCard wallet={wallet} />}
           {activeTab === 'stake'     && <StakeCard wallet={wallet} />}
+          {activeTab === 'bot'       && <BotCard />}
           {activeTab === 'docs'      && <DocsCard />}
         </Suspense>
       </main>

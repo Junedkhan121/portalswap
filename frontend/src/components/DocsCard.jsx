@@ -5,6 +5,7 @@ const SECTIONS = [
   { id: 'intro',     label: 'What is PortalSwap', icon: '🔷' },
   { id: 'how',       label: 'How it works', icon: '⚙️' },
   { id: 'start',     label: 'Getting started', icon: '🚀' },
+  { id: 'bot',       label: 'Telegram Bot', icon: '🤖' },
   { id: 'faucet',    label: 'Faucet', icon: '⛽' },
   { id: 'staking',   label: 'Staking', icon: '⚡' },
   { id: 'swap',      label: 'Swapping tokens', icon: '🔄' },
@@ -281,6 +282,102 @@ export default function DocsCard() {
             <Step n="5" title="Get test tokens from the Faucet">
               Open the <strong style={{ color: 'var(--text-primary)' }}>Faucet</strong> tab and click Mint next to any token (pUSDT, pDAI, pWBTC, pLINK). These are free testnet tokens with no real value, used to try the DEX.
             </Step>
+          </section>
+
+          {/* Telegram Bot */}
+          <section id="doc-bot" style={{ marginBottom: 48 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <h2 style={{ fontFamily: 'var(--font-primary)', fontWeight: 700, fontSize: 22, color: 'var(--text-primary)', margin: 0 }}>
+                Telegram Bot
+              </h2>
+              <Badge color="var(--accent-blue)">24/7 Active</Badge>
+            </div>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: 16 }}>
+              Trade PortalSwap directly from Telegram with our <strong style={{ color: 'var(--text-primary)' }}>PortalSwap Bot</strong>.
+              It's a non-custodial wallet that lives in your Telegram chat — swap tokens, stake tPOT, check balances, and send transfers
+              without leaving the app.
+            </p>
+
+            <a href="https://t.me/PortalSwapBot" target="_blank" rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 18px',
+                background: 'linear-gradient(135deg, #0088cc, #0066aa)',
+                color: 'white',
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 600,
+                fontFamily: 'var(--font-body)',
+                textDecoration: 'none',
+                marginBottom: 24,
+                transition: 'transform 0.15s',
+              }}
+              onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}>
+              <span>✈️</span> Open @PortalSwapBot
+            </a>
+
+            <h3 style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 16, color: 'var(--text-primary)', marginBottom: 12, marginTop: 24 }}>
+              Features
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
+              {[
+                { icon: '💰', title: 'Check Balance', desc: 'View your tPOT and token balances instantly' },
+                { icon: '🔄', title: 'Swap Tokens', desc: 'Trade tokens with a few taps' },
+                { icon: '⚡', title: 'Stake tPOT', desc: 'Earn rewards by staking' },
+                { icon: '💸', title: 'Send tPOT', desc: 'Transfer to any SS58 address' },
+                { icon: '🔑', title: 'Wallet Management', desc: 'Create or import wallets securely' },
+                { icon: '🚰', title: 'Faucet Access', desc: 'Get testnet tokens easily' },
+              ].map(f => (
+                <FeatureCard key={f.title} icon={f.icon} title={f.title} desc={f.desc} />
+              ))}
+            </div>
+
+            <h3 style={{ fontFamily: 'var(--font-primary)', fontWeight: 600, fontSize: 16, color: 'var(--text-primary)', marginBottom: 12 }}>
+              How to use
+            </h3>
+            <Step n="1" title="Open the bot">
+              Click the link above or search for <Code>@PortalSwapBot</Code> in Telegram. Send <Code>/start</Code> to begin.
+            </Step>
+            <Step n="2" title="Create or import wallet">
+              Choose "Create New Wallet" for a fresh wallet, or "Import Wallet" if you have an existing private key.
+            </Step>
+            <Step n="3" title="Get testnet tokens">
+              The bot shows both your EVM address (0x...) and SS58 address (5...). Use the SS58 address to claim tPOT from the web faucet at <strong style={{ color: 'var(--accent-blue)' }}>portalswap.live</strong>.
+            </Step>
+            <Step n="4" title="Start trading">
+              Use the menu buttons to check balances, swap tokens, stake tPOT, or send transfers. All transactions happen on-chain — your keys stay in your Telegram session.
+            </Step>
+
+            <div style={{
+              marginTop: 20,
+              padding: 16,
+              background: 'rgba(61,126,255,0.07)',
+              border: '1px solid var(--border-accent)',
+              borderRadius: 12,
+              fontSize: 13,
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+            }}>
+              <strong style={{ color: 'var(--text-primary)' }}>💡 About Addresses:</strong> The bot creates two addresses from one private key:
+              <br />• <strong>EVM (0x...)</strong> — For swaps, staking, and smart contracts
+              <br />• <strong>SS58 (5...)</strong> — For receiving native tPOT from faucets and transfers
+            </div>
+
+            <div style={{
+              marginTop: 16,
+              padding: 14,
+              background: 'rgba(255, 193, 7, 0.05)',
+              border: '1px solid rgba(255, 193, 7, 0.2)',
+              borderRadius: 10,
+              fontSize: 12,
+              color: 'var(--text-muted)',
+              lineHeight: 1.5,
+            }}>
+              <strong style={{ color: 'var(--text-primary)' }}>⚠️ Security:</strong> Your wallet keys are stored in your Telegram session only. Never share your private key. This bot runs on Portaldot V3 Testnet — use test funds only.
+            </div>
           </section>
 
           {/* Faucet */}
