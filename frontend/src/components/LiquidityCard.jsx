@@ -131,6 +131,8 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
   const [tokenB, setTokenB] = useState(TOKENS[2]);
   const [amountA, setAmountA] = useState('');
   const [amountB, setAmountB] = useState('');
+  const [balanceA, setBalanceA] = useState('0');
+  const [balanceB, setBalanceB] = useState('0');
   const [lpBalance, setLpBalance] = useState('0');
   const [removeAmount, setRemoveAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -138,6 +140,35 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
   const [reserves, setReserves] = useState({ r0: '0', r1: '0' });
   const [successResult, setSuccessResult] = useState(null);
   const [confetti, setConfetti] = useState(false);
+
+  const fetchBalances = useCallback(async () => {
+    if (!account || !signer) return;
+    try {
+      const provider = signer.provider;
+      // Fetch Token A balance
+      if (tokenA.isNative) {
+        const bal = await provider.getBalance(account);
+        setBalanceA(ethers.formatEther(bal));
+      } else {
+        const tc = new ethers.Contract(tokenA.address, ERC20_ABI, provider);
+        const bal = await tc.balanceOf(account);
+        const dec = await tc.decimals();
+        setBalanceA(ethers.formatUnits(bal, dec));
+      }
+      // Fetch Token B balance
+      if (tokenB.isNative) {
+        const bal = await provider.getBalance(account);
+        setBalanceB(ethers.formatEther(bal));
+      } else {
+        const tc = new ethers.Contract(tokenB.address, ERC20_ABI, provider);
+        const bal = await tc.balanceOf(account);
+        const dec = await tc.decimals();
+        setBalanceB(ethers.formatUnits(bal, dec));
+      }
+    } catch (err) {
+      console.error('[LiquidityCard] Balance fetch failed:', err);
+    }
+  }, [account, signer, tokenA, tokenB]);
 
   const fetchPairInfo = useCallback(async () => {
     if (!signer || ADDRESSES.Factory === ethers.ZeroAddress) return;
@@ -166,6 +197,7 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
   }, [signer, account, tokenA, tokenB]);
 
   useEffect(() => { fetchPairInfo(); }, [fetchPairInfo]);
+  useEffect(() => { fetchBalances(); }, [fetchBalances]);
 
   useEffect(() => {
     if (mode !== 'add' || !amountA || parseFloat(amountA) === 0) { setAmountB(''); return; }
@@ -239,6 +271,7 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
 
       // Compute LP tokens received
       await fetchPairInfo();
+      await fetchBalances();
       let lpReceived = '0';
       try {
         // Re-read pair address in case it was just created
@@ -312,6 +345,7 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
       onLiquiditySuccess?.(entry);
       setRemoveAmount('');
       fetchPairInfo();
+      fetchBalances();
     } catch (err) {
       console.error(err);
       toast.error(err.reason || 'Failed to remove liquidity', { id: toastId });
@@ -337,7 +371,10 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
         {mode === 'add' ? (
           <>
             <div style={{ background:'var(--bg-menu-item)', borderRadius:20, padding:16, marginBottom:12, border:'1px solid var(--border-secondary)' }}>
-              <p style={{ fontSize:11, color:'var(--text-muted)', marginBottom:8, fontFamily:'var(--font-primary)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Token A</p>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                <p style={{ fontSize:11, color:'var(--text-muted)', fontFamily:'var(--font-primary)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Token A</p>
+                <p style={{ fontSize:11, color:'var(--text-muted)', fontFamily:'var(--font-primary)' }}>Balance: {parseFloat(balanceA).toFixed(4)}</p>
+              </div>
               <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                 <input type="number" value={amountA} onChange={e => setAmountA(e.target.value)} placeholder="0.0"
                   style={{ flex:1, background:'transparent', border:'none', outline:'none', fontSize:22, fontWeight:600, color:'var(--text-primary)', fontFamily:'var(--font-primary)', width:'100%' }} />
@@ -352,7 +389,10 @@ export default function LiquidityCard({ wallet, onLiquiditySuccess }) {
             </div>
 
             <div style={{ background:'var(--bg-menu-item)', borderRadius:20, padding:16, border:'1px solid var(--border-secondary)' }}>
-              <p style={{ fontSize:11, color:'var(--text-muted)', marginBottom:8, fontFamily:'var(--font-primary)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Token B</p>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                <p style={{ fontSize:11, color:'var(--text-muted)', fontFamily:'var(--font-primary)', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.05em' }}>Token B</p>
+                <p style={{ fontSize:11, color:'var(--text-muted)', fontFamily:'var(--font-primary)' }}>Balance: {parseFloat(balanceB).toFixed(4)}</p>
+              </div>
               <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                 <input type="number" value={amountB} onChange={e => setAmountB(e.target.value)} placeholder="0.0"
                   style={{ flex:1, background:'transparent', border:'none', outline:'none', fontSize:22, fontWeight:600, color:'var(--text-primary)', fontFamily:'var(--font-primary)', width:'100%' }} />
