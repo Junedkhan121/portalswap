@@ -1,9 +1,104 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
+import { blake2b } from '@noble/hashes/blake2b';
 import toast from 'react-hot-toast';
 import { TOKENS, ADDRESSES, RPC_URL } from '../utils/addresses';
 import { ERC20_ABI, TPOT_FAUCET_ABI } from '../utils/abis';
 import { TokenAvatar } from './TokenSelect';
+
+/* ── SS58 ↔ EVM conversion ────────────────────────────────────── */
+const BASE58_ALPHA = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+function base58Decode(str) {
+  const bytes = [0];
+  for (const ch of str) {
+    const digit = BASE58_ALPHA.indexOf(ch);
+    if (digit < 0) throw new Error('Invalid base58 char');
+    let carry = digit;
+    for (let i = 0; i < bytes.length; i++) {
+      carry += bytes[i] * 58;
+      bytes[i] = carry & 0xff;
+      carry >>= 8;
+    }
+    while (carry > 0) { bytes.push(carry & 0xff); carry >>= 8; }
+  }
+  for (const ch of str) { if (ch !== '1') break; bytes.push(0); }
+  return new Uint8Array(bytes.reverse());
+}
+
+/**
+ * Decode a Portaldot SS58 address (prefix 42, single-byte) → 0x EVM address.
+ * AccountId32 layout for EVM accounts: [20-byte EVM addr][0xEE × 12]
+ */
+function ss58ToEvm(ss58) {
+  const decoded = base58Decode(ss58); // 1 prefix + 32 accountId + 2 checksum = 35 bytes
+  if (decoded.length !== 35) throw new Error('Bad SS58 length');
+  const evmBytes = decoded.slice(1, 21);
+  return '0x' + Array.from(evmBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function isValidSS58(addr) {
+  if (!addr || !addr.startsWith('5') || addr.length < 45 || addr.length > 50) return false;
+  try { ss58ToEvm(addr); return true; } catch { return false; }
+}
+
+/** Accept either "5..." SS58 or "0x..." EVM; return EVM for contract calls */
+function toEvmAddress(addr) {
+  if (!addr) return '';
+  if (addr.startsWith('5')) return ss58ToEvm(addr);
+  return addr;
+}
+
+/** Validate either format */
+function isValidRecipient(addr) {
+  if (!addr) return false;
+  if (addr.startsWith('5')) return isValidSS58(addr);
+  return ethers.isAddress(addr);
+}
+
+/* ── EVM → SS58 conversion ────────────────────────────────────── */
+function base58Encode(bytes) {
+  let digits = [0];
+  for (const byte of bytes) {
+    let carry = byte;
+    for (let i = 0; i < digits.length; i++) {
+      carry += digits[i] * 256;
+      digits[i] = carry % 58;
+      carry = Math.floor(carry / 58);
+    }
+    while (carry > 0) { digits.push(carry % 58); carry = Math.floor(carry / 58); }
+  }
+  let result = '';
+  for (const byte of bytes) { if (byte !== 0) break; result += '1'; }
+  for (let i = digits.length - 1; i >= 0; i--) {
+    result += BASE58_ALPHA[digits[i]];
+  }
+  return result;
+}
+
+/**
+ * Encode a 0x EVM address → Portaldot SS58 address.
+ * Portaldot uses SS58 prefix 42 (single byte) with AccountId32:
+ * [20-byte EVM addr][0xEE × 12] + blake2b-512('SS58PRE' || prefix || accountId) first 2 bytes.
+ */
+function evmToSS58(evmHex) {
+  const evmBytes = ethers.getBytes(evmHex);          // 20 bytes
+  const accountId = new Uint8Array(32);
+  accountId.set(evmBytes, 0);                        // first 20 = EVM address
+  accountId.fill(0xEE, 20);                          // last 12 = 0xEE padding
+  const payload = new Uint8Array(33);
+  payload[0] = 42;                                   // SS58 network prefix
+  payload.set(accountId, 1);
+  const pretext = new TextEncoder().encode('SS58PRE');
+  const toHash = new Uint8Array(pretext.length + payload.length);
+  toHash.set(pretext, 0);
+  toHash.set(payload, pretext.length);
+  const checksum = blake2b(toHash, { dkLen: 64 }).slice(0, 2);
+  const full = new Uint8Array(35);
+  full.set(payload, 0);
+  full.set(checksum, 33);
+  return base58Encode(full);
+}
 
 /* ── Countdown helper ─────────────────────────────────────────── */
 function fmtCountdown(secs) {
@@ -59,9 +154,15 @@ export default function FaucetCard({ wallet }) {
   const [relayLoading,setRelayLoading]= useState(false);
   const [relayHash,   setRelayHash]   = useState(null);
 
-  // Pre-fill recipient with connected wallet
+  // Auto-fill recipient with SS58 version of connected wallet
   useEffect(() => {
-    if (account && !recipient) setRecipient(account);
+    if (account && !recipient) {
+      try {
+        setRecipient(evmToSS58(account));
+      } catch {
+        setRecipient(account); // fallback to EVM if conversion fails
+      }
+    }
   }, [account]);
 
   // Fetch pool balance + cooldown for the current recipient
@@ -72,8 +173,9 @@ export default function FaucetCard({ wallet }) {
       const faucet = new ethers.Contract(faucetAddr, TPOT_FAUCET_ABI, provider);
       const bal = await faucet.poolBalance();
       setPoolBal(parseFloat(ethers.formatEther(bal)).toFixed(4));
-      if (recipient && ethers.isAddress(recipient)) {
-        const cd = await faucet.cooldownRemaining(recipient);
+      if (recipient && isValidRecipient(recipient)) {
+        const evmAddr = toEvmAddress(recipient);
+        const cd = await faucet.cooldownRemaining(evmAddr);
         setCooldownSecs(Number(cd));
       } else {
         setCooldownSecs(0);
@@ -93,14 +195,15 @@ export default function FaucetCard({ wallet }) {
   }, [cooldownSecs]);
 
   const handleClaim = async () => {
-    if (!faucetDeployed || !ethers.isAddress(recipient)) return;
+    if (!faucetDeployed || !isValidRecipient(recipient)) return;
     // Need a signer to pay gas for the claim tx
     if (!signer) { connect(); return; }
     setClaiming(true);
     const id = toast.loading('Claiming 1 tPOTv3…');
     try {
+      const evmAddr = toEvmAddress(recipient);
       const faucet = new ethers.Contract(faucetAddr, TPOT_FAUCET_ABI, signer);
-      const tx = await faucet.claim(recipient);
+      const tx = await faucet.claim(evmAddr);
       await tx.wait();
       toast.success('1 tPOTv3 sent to your wallet!', { id });
       setCooldownSecs(72 * 3600);
@@ -132,38 +235,37 @@ export default function FaucetCard({ wallet }) {
     }
   };
 
-  const eligible = faucetDeployed && cooldownSecs === 0 && ethers.isAddress(recipient);
+  const eligible = faucetDeployed && cooldownSecs === 0 && isValidRecipient(recipient);
 
 
-  // Relay claim — no wallet needed
+  // Direct claim — no wallet needed, accepts SS58 (5...) address
   const handleRelayClaim = async () => {
-    if (!faucetDeployed || !ethers.isAddress(recipient)) return;
+    if (!faucetDeployed || !isValidRecipient(recipient)) return;
     setRelayLoading(true);
     setRelayHash(null);
-    const id = toast.loading('Requesting 1 tPOTv3 via relay…');
+    const id = toast.loading('Requesting 1 tPOTv3…');
     try {
+      const evmAddr = toEvmAddress(recipient);
       const resp = await fetch('/api/faucet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipient }),
+        body: JSON.stringify({ recipient: evmAddr }),
       });
       const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || 'Relay failed');
-      toast.success('1 tPOTv3 sent to your wallet!', { id });
+      if (!resp.ok) throw new Error(data.error || 'Claim failed');
+      toast.success('1 tPOTv3 sent to your address!', { id });
       setRelayHash(data.hash);
       setCooldownSecs(72 * 3600);
       fetchFaucetInfo();
     } catch (err) {
-      const msg = err.message || 'Relay failed';
+      const msg = err.message || 'Claim failed';
       toast.error(msg.includes('ooldown') ? 'Still on cooldown — wait 72 hours' : msg, { id });
     } finally {
       setRelayLoading(false);
     }
   };
 
-  // Set true while Portaldot RPC bans the relay wallet address.
-  // Hides the gasless relay and promotes the wallet-direct claim instead.
-  const RELAY_PAUSED = true;
+  const RELAY_PAUSED = false;
 
   /* ── Render ──────────────────────────────────────────────────── */
   return (
@@ -216,21 +318,24 @@ export default function FaucetCard({ wallet }) {
                   type="text"
                   value={recipient}
                   onChange={e => setRecipient(e.target.value)}
-                  placeholder="0x…"
+                  placeholder="5… (Portaldot SS58 address)"
                   spellCheck={false}
                   style={{
                     flex: 1, padding: '12px 14px', borderRadius: 14,
-                    background: 'var(--bg-input)', border: `1px solid ${ethers.isAddress(recipient) ? 'var(--border-focus)' : 'var(--border-secondary)'}`,
+                    background: 'var(--bg-input)', border: `1px solid ${isValidRecipient(recipient) ? 'var(--border-focus)' : 'var(--border-secondary)'}`,
                     color: 'var(--text-primary)', fontFamily: 'monospace', fontSize: 13,
                     outline: 'none',
                   }}
                 />
-                {account && recipient !== account && (
-                  <button onClick={() => setRecipient(account)}
-                    style={{ padding: '0 14px', borderRadius: 14, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-primary)', background: 'var(--bg-menu-item)', color: 'var(--text-muted)', border: '1px solid var(--border-secondary)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    Use mine
-                  </button>
-                )}
+                {account && (() => {
+                  const ss58 = (() => { try { return evmToSS58(account); } catch { return account; } })();
+                  return recipient !== ss58 && (
+                    <button onClick={() => setRecipient(ss58)}
+                      style={{ padding: '0 14px', borderRadius: 14, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-primary)', background: 'var(--bg-menu-item)', color: 'var(--text-muted)', border: '1px solid var(--border-secondary)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      Use mine
+                    </button>
+                  );
+                })()}
               </div>
             </div>
 
@@ -262,30 +367,30 @@ export default function FaucetCard({ wallet }) {
               </div>
             )}
 
-            {/* ── Primary path: relay (no wallet needed) — hidden when paused ── */}
+            {/* ── Primary path: direct claim (no wallet needed) ── */}
             {!RELAY_PAUSED && cooldownSecs === 0 && (
               <div style={{ marginBottom: 12 }}>
                 <button
                   onClick={handleRelayClaim}
-                  disabled={relayLoading || !faucetDeployed || !ethers.isAddress(recipient)}
+                  disabled={relayLoading || !faucetDeployed || !isValidRecipient(recipient)}
                   style={{
                     width: '100%', padding: '15px 0', borderRadius: 18,
                     fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-primary)',
-                    background: ethers.isAddress(recipient) ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--bg-menu-item)',
-                    color: ethers.isAddress(recipient) ? '#fff' : 'var(--text-muted)',
-                    border: 'none', cursor: relayLoading || !ethers.isAddress(recipient) ? 'not-allowed' : 'pointer',
+                    background: isValidRecipient(recipient) ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--bg-menu-item)',
+                    color: isValidRecipient(recipient) ? '#fff' : 'var(--text-muted)',
+                    border: 'none', cursor: relayLoading || !isValidRecipient(recipient) ? 'not-allowed' : 'pointer',
                     opacity: relayLoading ? 0.65 : 1, transition: 'all 0.2s',
                   }}>
                   {relayLoading ? (
                     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                       <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/><path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                      Sending via relay…
+                      Sending…
                     </span>
-                  ) : !ethers.isAddress(recipient) ? 'Enter a valid address above'
+                  ) : !isValidRecipient(recipient) ? 'Enter your Portaldot address above'
                     : '⚡ Get 1 tPOTv3 — no wallet needed'}
                 </button>
                 <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 6, marginBottom: 0 }}>
-                  Relay pays gas on your behalf. Just paste your address and click.
+                  Enter your Portaldot address (starts with 5) and claim directly — no wallet required.
                 </p>
               </div>
             )}
@@ -298,53 +403,27 @@ export default function FaucetCard({ wallet }) {
               </div>
             )}
 
-            {/* ── Wallet claim — prominent when relay paused, collapsible otherwise ── */}
+            {/* ── Wallet claim — shown as secondary option when relay active ── */}
             {account && cooldownSecs === 0 && (
-              RELAY_PAUSED ? (
-                <div style={{ marginBottom: 12 }}>
-                  <button
-                    onClick={handleClaim}
-                    disabled={claiming || !eligible}
-                    style={{
-                      width: '100%', padding: '15px 0', borderRadius: 18,
-                      fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-primary)',
-                      background: eligible ? 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))' : 'var(--bg-menu-item)',
-                      color: eligible ? '#fff' : 'var(--text-muted)',
-                      border: 'none', cursor: claiming || !eligible ? 'not-allowed' : 'pointer',
-                      opacity: claiming ? 0.6 : 1, transition: 'all 0.2s',
-                    }}>
-                    {claiming ? (
-                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25"/><path fill="currentColor" opacity="0.75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                        Claiming…
-                      </span>
-                    ) : 'Claim 1 tPOTv3 (wallet pays gas)'}
-                  </button>
-                  <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-muted)', marginTop: 6, marginBottom: 0 }}>
-                    Your connected wallet signs the transaction and pays a tiny gas fee.
-                  </p>
-                </div>
-              ) : (
-                <details style={{ marginBottom: 12 }}>
-                  <summary style={{ fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    Already have tPOTv3? Claim directly with your wallet
-                  </summary>
-                  <button
-                    onClick={handleClaim}
-                    disabled={claiming || !eligible}
-                    style={{
-                      width: '100%', marginTop: 8, padding: '11px 0', borderRadius: 14,
-                      fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-primary)',
-                      background: 'rgba(61,126,255,0.12)', color: 'var(--accent-blue)',
-                      border: '1px solid rgba(61,126,255,0.3)',
-                      cursor: claiming || !eligible ? 'not-allowed' : 'pointer',
-                      opacity: claiming ? 0.6 : 1, transition: 'all 0.15s',
-                    }}>
-                    {claiming ? 'Claiming…' : 'Claim with my wallet (you pay gas)'}
-                  </button>
-                </details>
-              )
+              <details style={{ marginBottom: 12 }}>
+                <summary style={{ fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                  Already have gas? Claim directly with your wallet (you pay gas)
+                </summary>
+                <button
+                  onClick={handleClaim}
+                  disabled={claiming || !eligible}
+                  style={{
+                    width: '100%', marginTop: 8, padding: '11px 0', borderRadius: 14,
+                    fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-primary)',
+                    background: 'rgba(61,126,255,0.12)', color: 'var(--accent-blue)',
+                    border: '1px solid rgba(61,126,255,0.3)',
+                    cursor: claiming || !eligible ? 'not-allowed' : 'pointer',
+                    opacity: claiming ? 0.6 : 1, transition: 'all 0.15s',
+                  }}>
+                  {claiming ? 'Claiming…' : 'Claim with my wallet (you pay gas)'}
+                </button>
+              </details>
             )}
 
 
