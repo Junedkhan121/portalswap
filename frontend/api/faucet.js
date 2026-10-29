@@ -7,6 +7,7 @@
  */
 
 import { ethers } from 'ethers';
+import { blake2b } from '@noble/hashes/blake2b';
 
 const RPC_URL     = 'https://test-evm-rpc-v3.portaldot.dev';
 const FAUCET_ADDR = '0x2A9DFCC235d7169a9C0817eE0e27e51A6df95be0';
@@ -17,6 +18,45 @@ const FAUCET_ABI = [
   'function cooldownRemaining(address addr) external view returns (uint256)',
   'function poolBalance() external view returns (uint256)',
 ];
+
+// ── SS58 → EVM conversion (Portaldot prefix 42) ───────────────────────
+const BASE58_ALPHA = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function base58Decode(str) {
+  let n = 0n;
+  for (const c of str) {
+    const idx = BASE58_ALPHA.indexOf(c);
+    if (idx < 0) throw new Error(`Bad base58 char: ${c}`);
+    n = n * 58n + BigInt(idx);
+  }
+  const bytes = [];
+  while (n > 0n) { bytes.unshift(Number(n & 0xffn)); n >>= 8n; }
+  for (const c of str) { if (c === '1') bytes.unshift(0); else break; }
+  return new Uint8Array(bytes);
+}
+
+function ss58ToEvm(ss58) {
+  const decoded = base58Decode(ss58); // 35 bytes: 1 prefix + 32 accountId + 2 checksum
+  if (decoded.length !== 35) throw new Error('Bad SS58 length');
+  // Verify checksum
+  const payload = decoded.slice(0, 33);
+  const pretext = new TextEncoder().encode('SS58PRE');
+  const toHash = new Uint8Array(pretext.length + payload.length);
+  toHash.set(pretext, 0);
+  toHash.set(payload, pretext.length);
+  const checksum = blake2b(toHash, { dkLen: 64 }).slice(0, 2);
+  if (checksum[0] !== decoded[33] || checksum[1] !== decoded[34]) throw new Error('Bad SS58 checksum');
+  // First 20 bytes of accountId32 (bytes 1-20) are the EVM address
+  const evmBytes = decoded.slice(1, 21);
+  return '0x' + Array.from(evmBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Accept SS58 (starts with "5") or 0x EVM address; always returns 0x EVM
+function resolveRecipient(addr) {
+  if (typeof addr !== 'string') throw new Error('Invalid address');
+  if (addr.startsWith('5')) return ss58ToEvm(addr);
+  if (ethers.isAddress(addr)) return addr;
+  throw new Error('Invalid address — provide a Portaldot SS58 (5…) or EVM (0x…) address');
+}
 
 // ── Raw JSON-RPC helper (no ethers provider) ──────────────────────────
 let _rpcId = 1;
@@ -39,9 +79,16 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
 
-  const { recipient } = req.body || {};
-  if (!recipient || !ethers.isAddress(recipient)) {
-    return res.status(400).json({ error: 'Invalid recipient address' });
+  const { recipient: rawRecipient } = req.body || {};
+  if (!rawRecipient) {
+    return res.status(400).json({ error: 'recipient is required' });
+  }
+
+  let recipient;
+  try {
+    recipient = resolveRecipient(rawRecipient);
+  } catch (e) {
+    return res.status(400).json({ error: e.message });
   }
 
   const relayKey = process.env.RELAY_PRIVATE_KEY;
