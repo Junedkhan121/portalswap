@@ -55,17 +55,26 @@ export default async function handler(req, res) {
 
     // ── Pre-flight checks (raw eth_call / eth_getBalance) ────────────
 
-    const [cooldownHex, poolHex, balHex, nonceHex] = await Promise.all([
+    const [cooldownHex, poolHex, balHex, nonceHex, gasPriceHex] = await Promise.all([
       rpc('eth_call', [{ to: FAUCET_ADDR, data: iface.encodeFunctionData('cooldownRemaining', [recipient]) }, 'latest']),
       rpc('eth_call', [{ to: FAUCET_ADDR, data: iface.encodeFunctionData('poolBalance', []) }, 'latest']),
       rpc('eth_getBalance',          [relayWallet.address, 'latest']),
       rpc('eth_getTransactionCount', [relayWallet.address, 'latest']),
+      rpc('eth_gasPrice',            []),
     ]);
 
     const cooldown = ethers.toBigInt(cooldownHex);
     const poolBal  = ethers.toBigInt(poolHex);
     const relayBal = ethers.toBigInt(balHex);
     const nonce    = parseInt(nonceHex, 16);
+
+    // Use network gas price + 20% buffer, minimum 1 gwei
+    const MIN_GAS_PRICE = 1_000_000_000n; // 1 gwei
+    const networkGasPrice = ethers.toBigInt(gasPriceHex);
+    const gasPrice = networkGasPrice > 0n
+      ? (networkGasPrice * 120n / 100n)   // +20%
+      : MIN_GAS_PRICE;
+    const effectiveGasPrice = gasPrice < MIN_GAS_PRICE ? MIN_GAS_PRICE : gasPrice;
 
     if (cooldown > 0n) {
       const h = Math.floor(Number(cooldown) / 3600);
@@ -89,7 +98,7 @@ export default async function handler(req, res) {
       to:       FAUCET_ADDR,
       data:     iface.encodeFunctionData('claim', [recipient]),
       value:    0n,
-      gasPrice: 100000n,
+      gasPrice: effectiveGasPrice,
       gasLimit: 120000n,
       type:     0,
       nonce,
